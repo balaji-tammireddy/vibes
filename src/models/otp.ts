@@ -1,33 +1,17 @@
 import mongoose from "mongoose";
 
-const otpSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true
+const otpSchema = new mongoose.Schema(
+  {
+    email: { type: String, required: true },
+    otp: { type: String, required: true },
+    expiresAt: { type: Date, required: true },
+    name: { type: String },
+    username: { type: String },
+    hashedPassword: { type: String },
+    verified: { type: Boolean, default: false }
   },
-  otp: {
-    type: String,
-    required: true
-  },
-  expiresAt: {
-    type: Date,
-    required: true
-  },
-  name: {
-    type: String,
-    required: true
-  },
-  username: {
-    type: String,
-    required: true
-  },
-  hashedPassword: {
-    type: String,
-    required: true
-  }
-}, {
-  timestamps: true
-});
+  { timestamps: true }
+);
 
-const otp = mongoose.models.otps || mongoose.model("otps", otpSchema);
-export default otp;
+const OTPModel = mongoose.models.otps || mongoose.model("otps", otpSchema);
+export default OTPModel;
