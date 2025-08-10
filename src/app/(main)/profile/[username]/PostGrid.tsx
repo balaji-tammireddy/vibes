@@ -6,8 +6,8 @@ import { Heart, MessageCircle } from "lucide-react";
 type Post = {
   _id: string;
   imageUrl: string;
-  likesCount: number;     // ✅ updated name
-  commentsCount: number;  // ✅ updated name
+  likesCount: number;    
+  commentsCount: number;  
 };
 
 type PostGridProps = {
@@ -33,11 +33,11 @@ export default function PostGrid({ posts, onPostClick }: PostGridProps) {
           <div className="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center gap-4 text-white font-semibold text-sm sm:text-md">
             <div className="flex items-center gap-1">
               <Heart className="w-4 h-4" />
-              <span>{post.likesCount ?? 0}</span> {/* ✅ corrected */}
+              <span>{post.likesCount ?? 0}</span>
             </div>
             <div className="flex items-center gap-1">
               <MessageCircle className="w-4 h-4" />
-              <span>{post.commentsCount ?? 0}</span> {/* ✅ corrected */}
+              <span>{post.commentsCount ?? 0}</span>
             </div>
           </div>
         </div>

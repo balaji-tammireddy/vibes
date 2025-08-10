@@ -19,8 +19,8 @@ type User = {
 type Post = {
   _id: string;
   imageUrl: string;
-  likeCount: number;
-  commentCount: number;
+  likesCount: number;    // Changed from likeCount
+  commentsCount: number; // Changed from commentCount
 };
 
 export default function ProfilePage() {
@@ -28,18 +28,30 @@ export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const [userRes, postsRes] = await Promise.all([
           axios.get(`/api/profile/${username}`),
           axios.get(`/api/profile/${username}/posts`),
         ]);
         setUser(userRes.data.user);
-        setPosts(postsRes.data.posts); // No mapping or patching needed
+        
+        const postsData = postsRes.data.posts || [];
+        const mappedPosts = postsData.map((post: any) => ({
+          ...post,
+          likesCount: post.likeCount || post.likesCount || 0,
+          commentsCount: post.commentCount || post.commentsCount || 0
+        }));
+        setPosts(mappedPosts);
       } catch (err) {
         console.error("Failed to load profile data:", err);
+        setPosts([]); 
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -60,11 +72,13 @@ export default function ProfilePage() {
       <Navigation />
 
       <div className="flex-1 p-4 text-white">
-        {user && (
+        {loading ? (
+          <div className="flex justify-center items-center min-h-[400px]">
+            <p className="text-gray-400">Loading...</p>
+          </div>
+        ) : user ? (
           <div className="max-w-4xl mx-auto w-full">
-            {/* Responsive layout */}
             <div className="pl-0 md:pl-50 flex flex-col md:flex-row md:items-start md:gap-12 w-full">
-              {/* Left side: Profile pic + bio */}
               <div className="flex flex-col items-center md:items-start md:w-1/3 gap-4">
                 <Image
                   src={user.profilePicture || "/default-image.jpg"}
@@ -78,9 +92,7 @@ export default function ProfilePage() {
                 </p>
               </div>
 
-              {/* Right side: Name, stats, buttons */}
               <div className="flex flex-col items-center md:items-start md:w-2/3 gap-4 mt-6 md:mt-0">
-                {/* Username and Name */}
                 <div className="text-center md:text-left">
                   <p className="text-xl font-bold">{user.username}</p>
                   <p className="text-md text-gray-400">{user.name}</p>
@@ -136,6 +148,10 @@ export default function ProfilePage() {
             ) : (
               <p className="text-center text-gray-400">No posts yet.</p>
             )}
+          </div>
+        ) : (
+          <div className="flex justify-center items-center min-h-[400px]">
+            <p className="text-gray-400">User not found</p>
           </div>
         )}
       </div>
