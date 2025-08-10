@@ -8,7 +8,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { postId: s
   try {
     await connect();
 
-    const userId = await getDataFromToken(req);
+    const userId = await getDataFromToken();
     if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }

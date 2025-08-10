@@ -7,10 +7,12 @@ export async function GET(req: NextRequest, { params }: { params: { postId: stri
   try {
     await connect();
 
-    const { postId } = params;
+    const postId = params.postId;
+    const limit = parseInt(req.nextUrl.searchParams.get("limit") || "5");
 
     const comments = await Comment.find({ postId })
       .sort({ createdAt: -1 })
+      .limit(limit)
       .populate("userId", "username name profilePic");
 
     return NextResponse.json({ comments }, { status: 200 });

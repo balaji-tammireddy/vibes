@@ -21,6 +21,12 @@ const postSchema = new Schema(
         ref: "users",
       },
     ],
+    comments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "comments",
+      },
+    ],
   },
   { timestamps: true }
 );
