@@ -2,8 +2,8 @@ import "./globals.css";
 import { Toaster } from "sonner";
 
 export const metadata = {
-  title: "The Pet Parlour",
-  description: "Pet grooming and booking platform",
+  title: "Vibes",
+  description: "Your go-to social media platform to share moments, connect with friends, and explore a vibrant community.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
