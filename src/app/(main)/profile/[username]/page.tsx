@@ -6,6 +6,7 @@ import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Navigation from "@/app/(main)/components/Navigation";
+import PostGrid from "./PostGrid";
 
 type User = {
   _id: string;
@@ -18,6 +19,8 @@ type User = {
 type Post = {
   _id: string;
   imageUrl: string;
+  likeCount: number;
+  commentCount: number;
 };
 
 export default function ProfilePage() {
@@ -34,7 +37,7 @@ export default function ProfilePage() {
           axios.get(`/api/profile/${username}/posts`),
         ]);
         setUser(userRes.data.user);
-        setPosts(postsRes.data.posts);
+        setPosts(postsRes.data.posts); // No mapping or patching needed
       } catch (err) {
         console.error("Failed to load profile data:", err);
       }
@@ -84,7 +87,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Stats */}
-                <div className="flex md:justify-start justify-center gap-8 w-full md:w-auto">
+                <div className="flex md:justify-between justify-center gap-8 w-full">
                   <div className="text-center">
                     <p className="font-bold text-lg">{posts.length}</p>
                     <p className="text-sm text-gray-400">Posts</p>
@@ -121,6 +124,18 @@ export default function ProfilePage() {
 
             {/* Divider */}
             <hr className="w-full border-gray-700 my-6" />
+
+            {/* User posts */}
+            {posts.length > 0 ? (
+              <PostGrid
+                posts={posts}
+                onPostClick={(post) => {
+                  console.log("Post clicked", post);
+                }}
+              />
+            ) : (
+              <p className="text-center text-gray-400">No posts yet.</p>
+            )}
           </div>
         )}
       </div>
