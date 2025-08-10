@@ -208,18 +208,18 @@ export default function PostDetailModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 px-2 sm:px-6">
       <button
         onClick={() => {
           if (post) onPostUpdate?.(post);
           onClose();
         }}
-        className="absolute top-6 right-6 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-2"
+        className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-2"
       >
         <X className="w-5 h-5" />
       </button>
 
-      <div className="bg-black text-white rounded-lg max-w-6xl max-h-[90vh] w-full flex overflow-hidden relative">
+      <div className="bg-black text-white rounded-lg w-full max-w-6xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden relative">
         {loading ? (
           <div className="w-full h-96 flex items-center justify-center">
             <p className="text-gray-400">Loading...</p>
@@ -230,8 +230,8 @@ export default function PostDetailModal({
           </div>
         ) : (
           <>
-            {/* Left Image */}
-            <div className="w-3/5 bg-black flex items-center justify-center">
+            {/* Image */}
+            <div className="w-full md:w-3/5 bg-black flex items-center justify-center max-h-[400px] md:max-h-full">
               <Image
                 src={post.imageUrl}
                 alt="Post image"
@@ -241,8 +241,8 @@ export default function PostDetailModal({
               />
             </div>
 
-            {/* Right Panel */}
-            <div className="w-2/5 flex flex-col border-l border-gray-800">
+            {/* Info */}
+            <div className="w-full md:w-2/5 flex flex-col border-t md:border-t-0 md:border-l border-gray-800 max-h-[60vh] md:max-h-full">
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-gray-800">
                 <div className="flex items-center gap-3">
@@ -336,9 +336,7 @@ export default function PostDetailModal({
                   comments.map((comment) => (
                     <div key={comment._id} className="flex items-start gap-3">
                       <Image
-                        src={
-                          comment.userId.profilePic || "/default-image.jpg"
-                        }
+                        src={comment.userId.profilePic || "/default-image.jpg"}
                         alt={comment.userId.username}
                         width={24}
                         height={24}
