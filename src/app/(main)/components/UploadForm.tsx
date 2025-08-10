@@ -49,27 +49,45 @@ export default function UploadForm() {
     setLoading(true);
 
     try {
-      let imageUrl = imagePreview;
-
-      if (imageFile) {
-        const formData = new FormData();
-        formData.append("image", imageFile);
-        formData.append("caption", caption || "temp");
-        const uploadRes = await axios.post("/api/post/upload", formData);
-        imageUrl = uploadRes.data.post.imageUrl;
-      }
-
       if (isEdit && postId) {
+        // For editing, we might need to upload a new image or keep the existing one
+        let imageUrl = imagePreview;
+
+        if (imageFile) {
+          // Upload new image
+          const formData = new FormData();
+          formData.append("image", imageFile);
+          formData.append("caption", caption || "");
+          
+          const uploadRes = await axios.post("/api/post/upload", formData, {
+            headers: {
+              // Don't set Content-Type, let axios handle it for FormData
+            },
+          });
+          imageUrl = uploadRes.data.post.imageUrl;
+        }
+
+        // Update the post
         await axios.put(`/api/post/edit/${postId}`, {
           caption,
           imageUrl,
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
 
         toast.success("Post edited successfully!");
       } else {
-        await axios.post("/api/post/create", {
-          caption,
-          imageUrl,
+        // For new posts, always use FormData
+        const formData = new FormData();
+        formData.append("image", imageFile!);
+        formData.append("caption", caption || "");
+
+        await axios.post("/api/post/upload", formData, {
+          headers: {
+            // Don't set Content-Type, let axios handle it for FormData
+          },
         });
 
         toast.success("Post uploaded successfully!");
@@ -96,6 +114,7 @@ export default function UploadForm() {
           accept="image/*"
           onChange={handleImageChange}
           className="text-white bg-black file:bg-gray-800 file:text-white file:border file:border-gray-700 file:rounded file:px-3 file:py-1"
+          required={!isEdit} // Make image required for new posts
         />
         {imagePreview && (
           <div className="mt-2">
