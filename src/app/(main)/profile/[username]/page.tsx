@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import Navigation from "@/app/(main)/components/Navigation";
 import PostGrid from "./PostGrid";
 import PostDetailModal from "./PostDetailModal";
+import { toast } from "sonner";
 
 type User = {
   _id: string;
@@ -77,7 +78,8 @@ export default function ProfilePage() {
 
   const handleLogout = async () => {
     try {
-      await axios.post("/api/auth/logout");
+      await axios.post("/api/logout");
+      toast.success("Logout successful!");
       router.push("/login");
     } catch (err) {
       console.error("Logout failed:", err);
