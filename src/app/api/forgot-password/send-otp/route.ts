@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     await OTPModel.create({
       email,
       otp: otpCode,
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 mins
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
       verified: false,
     });
 

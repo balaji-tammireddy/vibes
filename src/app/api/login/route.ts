@@ -1,4 +1,5 @@
 import { connect } from "@/dbSetup/dbSetup";
+import message from "@/models/message";
 import User from "@/models/user";
 import { compare } from "bcryptjs";
 import { SignJWT } from "jose";
@@ -11,12 +12,12 @@ export async function POST(req: Request) {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return Response.json({ error: "User not found" }, { status: 404 });
+      return Response.json({ message: "User not found" }, { status: 404 });
     }
 
     const isMatch = await compare(password, user.password);
     if (!isMatch) {
-      return Response.json({ error: "Invalid credentials" }, { status: 400 });
+      return Response.json({ message: "Invalid credentials" }, { status: 400 });
     }
 
     const token = await new SignJWT({ id: user._id.toString() })
