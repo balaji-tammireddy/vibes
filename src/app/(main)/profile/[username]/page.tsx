@@ -1,106 +1,128 @@
-// app/(main)/profile/[username]/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Image from "next/image";
-import { useParams } from "next/navigation";
-import PostGrid from "./PostGrid";
+import axios from "axios";
+import { useParams, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import Navigation from "@/app/(main)/components/Navigation";
 
-interface UserType {
+type User = {
+  _id: string;
   username: string;
   name: string;
   bio?: string;
   profilePicture?: string;
-  postsCount: number;
-  followers: number;
-  following: number;
-}
+};
 
-interface PostType {
+type Post = {
   _id: string;
-  image: string;
-  likes: number;
-  comments: number;
-}
+  imageUrl: string;
+};
 
 export default function ProfilePage() {
   const { username } = useParams();
-  const [user, setUser] = useState<UserType | null>(null);
-  const [posts, setPosts] = useState<PostType[]>([]);
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const [profileRes, postsRes] = await Promise.all([
-        axios.get(`/api/profile/${username}`),
-        axios.get(`/api/profile/${username}/posts`),
-      ]);
-
-      setUser({
-        ...profileRes.data.user,
-        postsCount: postsRes.data.posts.length,
-      });
-      setPosts(postsRes.data.posts);
+      try {
+        const [userRes, postsRes] = await Promise.all([
+          axios.get(`/api/profile/${username}`),
+          axios.get(`/api/profile/${username}/posts`),
+        ]);
+        setUser(userRes.data.user);
+        setPosts(postsRes.data.posts);
+      } catch (err) {
+        console.error("Failed to load profile data:", err);
+      }
     };
 
-    fetchData();
+    if (username) fetchData();
   }, [username]);
 
-  if (!user) return <div className="text-white">Loading...</div>;
+  const handleLogout = async () => {
+    try {
+      await axios.post("/api/auth/logout");
+      router.push("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex">
       <Navigation />
-      <div className="flex-1 px-4 md:px-8 py-8 text-white md:ml-20">
-        {/* Profile Header */}
-        <div className="flex flex-col md:flex-row md:items-start md:gap-12 mb-8">
-          <div className="flex-shrink-0">
-            <Image
-              src={user.profilePicture || "/default-image.jpg"}
-              alt="Profile"
-              width={120}
-              height={120}
-              className="rounded-full object-cover w-28 h-28"
-            />
-          </div>
-          <div className="flex-1 mt-4 md:mt-0">
-            <h2 className="text-xl font-bold">{user.username}</h2>
-            <p className="text-gray-400">{user.name}</p>
 
-            <div className="flex justify-between md:justify-start md:gap-8 mt-4 text-sm">
-              <div className="text-center">
-                <p className="font-semibold">{user.postsCount}</p>
-                <p className="text-gray-400">Posts</p>
+      <div className="flex-1 p-4 text-white">
+        {user && (
+          <div className="max-w-4xl mx-auto w-full">
+            {/* Responsive layout */}
+            <div className="pl-0 md:pl-50 flex flex-col md:flex-row md:items-start md:gap-12 w-full">
+              {/* Left side: Profile pic + bio */}
+              <div className="flex flex-col items-center md:items-start md:w-1/3 gap-4">
+                <Image
+                  src={user.profilePicture || "/default-image.jpg"}
+                  alt="profile"
+                  width={120}
+                  height={120}
+                  className="rounded-full object-cover"
+                />
+                <p className="text-sm italic text-gray-400 text-center md:text-left">
+                  {user.bio || "No bio added"}
+                </p>
               </div>
-              <div className="text-center">
-                <p className="font-semibold">{user.followers}</p>
-                <p className="text-gray-400">Followers</p>
-              </div>
-              <div className="text-center">
-                <p className="font-semibold">{user.following}</p>
-                <p className="text-gray-400">Following</p>
+
+              {/* Right side: Name, stats, buttons */}
+              <div className="flex flex-col items-center md:items-start md:w-2/3 gap-4 mt-6 md:mt-0">
+                {/* Username and Name */}
+                <div className="text-center md:text-left">
+                  <p className="text-xl font-bold">{user.username}</p>
+                  <p className="text-md text-gray-400">{user.name}</p>
+                </div>
+
+                {/* Stats */}
+                <div className="flex md:justify-start justify-center gap-8 w-full md:w-auto">
+                  <div className="text-center">
+                    <p className="font-bold text-lg">{posts.length}</p>
+                    <p className="text-sm text-gray-400">Posts</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-bold text-lg">0</p>
+                    <p className="text-sm text-gray-400">Followers</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-bold text-lg">0</p>
+                    <p className="text-sm text-gray-400">Following</p>
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto mt-4">
+                  <Button
+                    onClick={() => router.push("/edit-profile")}
+                    variant="outline"
+                    className="w-full md:w-auto text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white"
+                  >
+                    Edit Profile
+                  </Button>
+                  <Button
+                    onClick={handleLogout}
+                    variant="outline"
+                    className="w-full md:w-auto text-red-500 border border-red-500 hover:bg-red-500 hover:text-white"
+                  >
+                    Log Out
+                  </Button>
+                </div>
               </div>
             </div>
 
-            <div className="mt-4 flex flex-col md:flex-row gap-3 md:gap-4 md:items-center">
-              <button className="bg-zinc-800 text-white px-4 py-2 rounded-md text-sm w-full md:w-auto text-center">
-                Edit Profile
-              </button>
-              <button className="bg-zinc-800 text-white px-4 py-2 rounded-md text-sm w-full md:w-auto text-center">
-                Log Out
-              </button>
-            </div>
-
-            {user.bio && <p className="mt-4 text-gray-300">{user.bio}</p>}
+            {/* Divider */}
+            <hr className="w-full border-gray-700 my-6" />
           </div>
-        </div>
-
-        {/* Divider */}
-        <hr className="border-zinc-700 mb-6" />
-
-        {/* Post Grid */}
-        <PostGrid posts={posts} />
+        )}
       </div>
     </div>
   );
