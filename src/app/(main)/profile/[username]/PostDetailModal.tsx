@@ -12,7 +12,6 @@ import {
   Edit,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 
 type User = {
   _id: string;
@@ -137,11 +136,7 @@ export default function PostDetailModal({
 
   const handleEdit = () => {
     if (!post) return;
-    router.push(
-      `/upload?edit=true&postId=${post._id}&caption=${encodeURIComponent(
-        post.caption
-      )}&imageUrl=${encodeURIComponent(post.imageUrl)}`
-    );
+    router.push(`/profile/${post.userId.username}/post/edit/${post._id}`);
   };
 
   const isOwnPost = post && currentUserId && post.userId._id === currentUserId;
