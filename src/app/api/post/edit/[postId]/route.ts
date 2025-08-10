@@ -3,11 +3,11 @@ import Post from "@/models/post";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PUT(req: NextRequest, { params }: { params: { postId: string } }) {
+export async function PUT(req: NextRequest, context: { params: { postId: string } }) {
   try {
     await connect();
     const userId = await getDataFromToken();
-    const { postId } = params;
+    const { postId } = context.params;
     const body = await req.json();
 
     const post = await Post.findById(postId);

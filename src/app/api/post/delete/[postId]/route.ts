@@ -1,19 +1,19 @@
 import { connect } from "@/dbSetup/dbSetup";
-import { getDataFromToken } from "@/helpers/getDataFromToken";
 import Post from "@/models/post";
-import Comment from "@/models/comment";
+import { getDataFromToken } from "@/helpers/getDataFromToken";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function DELETE(req: NextRequest, { params }: { params: { postId: string } }) {
+export async function DELETE(
+  req: NextRequest,
+  context : { params: { postId: string } }
+) {
   try {
     await connect();
 
     const userId = await getDataFromToken();
-    if (!userId) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    const postId = context.params.postId;
 
-    const post = await Post.findById(params.postId);
+    const post = await Post.findById(postId);
     if (!post) {
       return NextResponse.json({ message: "Post not found" }, { status: 404 });
     }
@@ -22,13 +22,14 @@ export async function DELETE(req: NextRequest, { params }: { params: { postId: s
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    await Comment.deleteMany({ postId: post._id });
+    await Post.findByIdAndDelete(postId);
 
-    await Post.findByIdAndDelete(post._id);
-
-    return NextResponse.json({ message: "Post deleted successfully" }, { status: 200 });
+    return NextResponse.json({ message: "Post deleted successfully" });
   } catch (error) {
     console.error("Post deletion error:", error);
-    return NextResponse.json({ message: "Failed to delete post" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
