@@ -237,7 +237,7 @@ export default function PostDetailModal({
                     <div key={comment._id} className="flex items-start gap-3">
                       <Image
                         src={comment.userId.profilePic || "/default-image.jpg"}
-                        alt={comment.userId.username}
+                        alt={comment.userId.username || "User"}
                         width={24}
                         height={24}
                         className="rounded-full object-cover mt-1"
