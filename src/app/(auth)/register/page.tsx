@@ -63,7 +63,7 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <Button onClick={handleSubmit} disabled={loading} className="w-full">
+        <Button onClick={handleSubmit} disabled={loading} className="w-full cursor-pointer">
           {loading ? "Registering..." : "Register"}
         </Button>
 

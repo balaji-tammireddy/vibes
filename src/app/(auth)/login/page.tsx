@@ -51,7 +51,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <Button onClick={handleLogin} disabled={loading} className="w-full">
+        <Button onClick={handleLogin} disabled={loading} className="w-full cursor-pointer">
           {loading ? "Logging in..." : "Login"}
         </Button>
 

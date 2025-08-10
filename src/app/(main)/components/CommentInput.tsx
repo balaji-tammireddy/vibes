@@ -32,7 +32,7 @@ export default function CommentInput({
   return (
     <div className="flex gap-2 items-center">
       <input
-        className="bg-zinc-900 border border-zinc-700 rounded px-3 py-1 text-sm text-white flex-1"
+        className="bg-zinc-900 border border-zinc-700 rounded-2xl px-3 py-1 text-sm text-white flex-1"
         placeholder="Add a comment..."
         value={text}
         onChange={(e) => setText(e.target.value)}

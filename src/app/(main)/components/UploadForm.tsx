@@ -81,7 +81,7 @@ export default function UploadForm() {
         {/* Post Button */}
         <Button
           onClick={handleUpload}
-          className="w-full"
+          className="w-full cursor-pointer"
           disabled={loading || !file}
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Post"}

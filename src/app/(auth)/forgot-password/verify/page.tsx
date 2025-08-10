@@ -51,7 +51,7 @@ export default function ForgotVerifyPage() {
           <Input type="text" value={otp} onChange={(e) => setOtp(e.target.value)} />
         </div>
 
-        <Button onClick={handleSubmit} disabled={loading} className="w-full">
+        <Button onClick={handleSubmit} disabled={loading} className="w-full cursor-pointer">
           {loading ? "Verifying..." : "Verify OTP"}
         </Button>
       </div>

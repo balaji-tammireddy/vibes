@@ -76,7 +76,7 @@ export default function ResetPasswordPage() {
           </div>
         </div>
 
-        <Button onClick={handleSubmit} disabled={loading} className="w-full">
+        <Button onClick={handleSubmit} disabled={loading} className="w-full cursor-pointer">
           {loading ? "Resetting..." : "Reset Password"}
         </Button>
       </div>

@@ -54,7 +54,7 @@ export default function VerifyPage() {
           />
         </div>
 
-        <Button onClick={handleSubmit} disabled={loading} className="w-full">
+        <Button onClick={handleSubmit} disabled={loading} className="w-full cursor-pointer">
           {loading ? 'Verifying...' : 'Verify'}
         </Button>
       </div>

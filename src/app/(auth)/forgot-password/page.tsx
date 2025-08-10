@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
           />
         </div>
 
-        <Button onClick={handleSubmit} disabled={loading} className="w-full">
+        <Button onClick={handleSubmit} disabled={loading} className="w-full cursor-pointer">
           {loading ? "Sending..." : "Send OTP"}
         </Button>
       </div>
