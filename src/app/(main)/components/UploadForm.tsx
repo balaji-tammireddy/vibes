@@ -9,8 +9,9 @@ import { toast } from "sonner";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import Navigation from "@/app/(main)/components/Navigation";
 
-export default function UploadForm() {
+export default function UploadPage() {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [caption, setCaption] = useState("");
@@ -28,7 +29,7 @@ export default function UploadForm() {
 
     try {
       setLoading(true);
-      const res = await axios.post("/api/post/upload", formData, {
+      await axios.post("/api/post/upload", formData, {
         withCredentials: true,
       });
       toast.success("Post uploaded successfully!");
@@ -42,50 +43,60 @@ export default function UploadForm() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto mt-10 px-4">
-      <div className="flex flex-col items-center gap-4">
-        {/* Image Preview */}
-        {file && (
-          <div className="w-full aspect-square relative overflow-hidden rounded-md border border-gray-700">
-            <Image
-              src={URL.createObjectURL(file)}
-              alt="preview"
-              fill
-              className="object-cover"
+    <div className="flex">
+      {/* ✅ Sidebar */}
+      <div className="hidden md:block w-64">
+        <Navigation />
+      </div>
+
+      {/* ✅ Upload Form */}
+      <div className="flex-1 flex justify-center items-start px-4 mt-10">
+        <div className="max-w-md w-full">
+          <div className="flex flex-col items-center gap-4">
+            {/* Image Preview */}
+            {file && (
+              <div className="w-full aspect-square relative overflow-hidden rounded-md border border-gray-700">
+                <Image
+                  src={URL.createObjectURL(file)}
+                  alt="preview"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+
+            {/* File Input */}
+            <label htmlFor="file-upload" className="w-full">
+              <div className="border border-gray-700 rounded-md py-2 px-4 text-center cursor-pointer hover:bg-gray-800 transition text-white">
+                {file ? "Change Image" : "Choose Image"}
+              </div>
+              <input
+                id="file-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+              />
+            </label>
+
+            {/* Caption */}
+            <Textarea
+              placeholder="Write a caption..."
+              className="resize-none text-white"
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
             />
+
+            {/* Post Button */}
+            <Button
+              onClick={handleUpload}
+              className="w-full cursor-pointer"
+              disabled={loading || !file}
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Post"}
+            </Button>
           </div>
-        )}
-
-        {/* File Input */}
-        <label htmlFor="file-upload" className="w-full">
-          <div className="border border-gray-700 rounded-md py-2 px-4 text-center cursor-pointer hover:bg-gray-800 transition text-white">
-            {file ? "Change Image" : "Choose Image"}
-          </div>
-          <input
-            id="file-upload"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-          />
-        </label>
-
-        {/* Caption */}
-        <Textarea
-          placeholder="Write a caption..."
-          className="resize-none text-white"
-          value={caption}
-          onChange={(e) => setCaption(e.target.value)}
-        />
-
-        {/* Post Button */}
-        <Button
-          onClick={handleUpload}
-          className="w-full cursor-pointer"
-          disabled={loading || !file}
-        >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Post"}
-        </Button>
+        </div>
       </div>
     </div>
   );
