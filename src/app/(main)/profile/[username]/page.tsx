@@ -134,7 +134,6 @@ export default function ProfilePage() {
                   <p className="text-xl font-bold">{user.username}</p>
                   <p className="text-md text-gray-400">{user.name}</p>
                 </div>
-                {/* Stats */}
                 <div className="flex justify-center md:justify-between gap-8 w-full flex-wrap">
                   <div className="text-center">
                     <p className="font-bold text-lg">{posts.length}</p>
@@ -149,19 +148,18 @@ export default function ProfilePage() {
                     <p className="text-sm text-gray-400">Following</p>
                   </div>
                 </div>
-                {/* Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3 w-full mt-4">
+                <div className="flex flex-col justify-center sm:flex-row gap-3 w-full mt-4">
                   <Button
                     onClick={() => router.push("/edit-profile")}
                     variant="outline"
-                    className="w-full cursor-pointer sm:w-auto text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white"
+                    className="w-full cursor-pointer sm:w-50 sm:mx-15 text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white"
                   >
                     Edit Profile
                   </Button>
                   <Button
                     onClick={handleLogout}
                     variant="outline"
-                    className="w-full cursor-pointer sm:w-auto text-red-500 border border-red-500 hover:bg-red-500 hover:text-white"
+                    className="w-full cursor-pointer sm:w-50 sm:mx-15 text-red-500 border border-red-500 hover:bg-red-500 hover:text-white"
                   >
                     Log Out
                   </Button>

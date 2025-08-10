@@ -1,32 +1,37 @@
 import { connect } from "@/dbSetup/dbSetup";
 import Post from "@/models/post";
+import Comment from "@/models/comment";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function DELETE(
   req: NextRequest,
-  context : { params: { postId: string } }
+  { params }: { params: { postId: string } }
 ) {
   try {
     await connect();
-
     const userId = await getDataFromToken();
-    const postId = context.params.postId;
+    const postId = params.postId;
+
+    if (!postId) {
+      return NextResponse.json({ message: "Post ID is required" }, { status: 400 });
+    }
 
     const post = await Post.findById(postId);
     if (!post) {
       return NextResponse.json({ message: "Post not found" }, { status: 404 });
     }
 
-    if (post.user.toString() !== userId.toString()) {
+    if (!post.userId || post.userId.toString() !== userId.toString()) {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
+    await Comment.deleteMany({ postId });
+
     await Post.findByIdAndDelete(postId);
 
-    return NextResponse.json({ message: "Post deleted successfully" });
+    return NextResponse.json({ message: "Post and its comments deleted successfully" });
   } catch (error) {
-    console.error("Post deletion error:", error);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }
