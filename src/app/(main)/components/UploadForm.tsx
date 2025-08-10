@@ -1,89 +1,141 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function UploadForm() {
-  const router = useRouter();
-  const [file, setFile] = useState<File | null>(null);
-  const [caption, setCaption] = useState("");
+  const searchParams = useSearchParams();
+  const isEdit = searchParams.get("edit") === "true";
+  const postId = searchParams.get("postId");
+  const initialCaption = searchParams.get("caption") || "";
+  const initialImageUrl = searchParams.get("imageUrl") || "";
+
+  const [caption, setCaption] = useState(initialCaption);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    initialImageUrl
+  );
   const [loading, setLoading] = useState(false);
 
-  const handleUpload = async () => {
-    if (!file) {
-      toast.error("Please select an image to upload.");
+  const router = useRouter();
+
+  useEffect(() => {
+    setCaption(initialCaption);
+    setImagePreview(initialImageUrl);
+  }, [initialCaption, initialImageUrl]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!imageFile && !imagePreview) {
+      toast.error("Please select an image");
       return;
     }
 
-    const formData = new FormData();
-    formData.append("image", file);
-    formData.append("caption", caption);
+    setLoading(true);
 
     try {
-      setLoading(true);
-      await axios.post("/api/post/upload", formData, {
-        withCredentials: true,
-      });
-      toast.success("Post uploaded successfully!");
+      let imageUrl = imagePreview;
+
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("image", imageFile);
+        formData.append("caption", caption || "temp");
+        const uploadRes = await axios.post("/api/post/upload", formData);
+        imageUrl = uploadRes.data.post.imageUrl;
+      }
+
+      if (isEdit && postId) {
+        await axios.put(`/api/post/edit/${postId}`, {
+          caption,
+          imageUrl,
+        });
+
+        toast.success("Post edited successfully!");
+      } else {
+        await axios.post("/api/post/create", {
+          caption,
+          imageUrl,
+        });
+
+        toast.success("Post uploaded successfully!");
+      }
+
       router.push("/home");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to upload post.");
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="w-full max-w-md flex flex-col gap-4">
-      {/* Image Preview */}
-      {file && (
-        <div className="w-full aspect-square relative overflow-hidden rounded-md border border-gray-700">
-          <Image
-            src={URL.createObjectURL(file)}
-            alt="preview"
-            fill
-            className="object-cover"
-          />
-        </div>
-      )}
-
-      {/* File Input */}
-      <label htmlFor="file-upload" className="w-full">
-        <div className="border border-gray-700 rounded-md py-2 px-4 text-center cursor-pointer hover:bg-gray-800 transition text-white">
-          {file ? "Change Image" : "Choose Image"}
-        </div>
+    <form
+      onSubmit={handleSubmit}
+      className="bg-black text-white border border-gray-800 rounded-md shadow-lg p-6 w-full max-w-md space-y-4"
+    >
+      <div className="space-y-2">
+        <label className="block text-sm font-medium">Image</label>
         <input
-          id="file-upload"
           type="file"
           accept="image/*"
-          className="hidden"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          onChange={handleImageChange}
+          className="text-white bg-black file:bg-gray-800 file:text-white file:border file:border-gray-700 file:rounded file:px-3 file:py-1"
         />
-      </label>
+        {imagePreview && (
+          <div className="mt-2">
+            <Image
+              src={imagePreview}
+              alt="Preview"
+              width={500}
+              height={500}
+              className="rounded border border-gray-700"
+            />
+          </div>
+        )}
+      </div>
+      <div className="space-y-2">
+        <label className="block text-sm font-medium">Caption</label>
+        <Textarea
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+          placeholder="Write your caption here..."
+          rows={3}
+          className="bg-black text-white border border-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-white"
+        />
+      </div>
 
-      {/* Caption */}
-      <Textarea
-        placeholder="Write a caption..."
-        className="resize-none text-white"
-        value={caption}
-        onChange={(e) => setCaption(e.target.value)}
-      />
-
-      {/* Post Button */}
       <Button
-        onClick={handleUpload}
-        className="w-full"
-        disabled={loading || !file}
+        type="submit"
+        disabled={loading}
+        className="w-full bg-white text-black hover:bg-gray-200"
       >
-        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Post"}
+        {loading ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            {isEdit ? "Saving..." : "Posting..."}
+          </>
+        ) : isEdit ? (
+          "Edit"
+        ) : (
+          "Post"
+        )}
       </Button>
-    </div>
+    </form>
   );
 }
