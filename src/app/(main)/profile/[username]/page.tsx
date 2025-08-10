@@ -7,6 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Navigation from "@/app/(main)/components/Navigation";
 import PostGrid from "./PostGrid";
+import PostDetailModal from "./PostDetailModal";
 
 type User = {
   _id: string;
@@ -19,8 +20,8 @@ type User = {
 type Post = {
   _id: string;
   imageUrl: string;
-  likesCount: number;    // Changed from likeCount
-  commentsCount: number; // Changed from commentCount
+  likesCount: number;
+  commentsCount: number;
 };
 
 export default function ProfilePage() {
@@ -29,6 +30,22 @@ export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const res = await axios.get("/api/auth/me");
+        const { userId } = res.data;
+        setCurrentUserId(userId);
+      } catch (error) {
+        console.error("Failed to get current user:", error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,17 +56,17 @@ export default function ProfilePage() {
           axios.get(`/api/profile/${username}/posts`),
         ]);
         setUser(userRes.data.user);
-        
+
         const postsData = postsRes.data.posts || [];
         const mappedPosts = postsData.map((post: any) => ({
           ...post,
           likesCount: post.likeCount || post.likesCount || 0,
-          commentsCount: post.commentCount || post.commentsCount || 0
+          commentsCount: post.commentCount || post.commentsCount || 0,
         }));
         setPosts(mappedPosts);
       } catch (err) {
         console.error("Failed to load profile data:", err);
-        setPosts([]); 
+        setPosts([]);
       } finally {
         setLoading(false);
       }
@@ -65,6 +82,27 @@ export default function ProfilePage() {
     } catch (err) {
       console.error("Logout failed:", err);
     }
+  };
+
+  const handlePostClick = (post: Post) => {
+    setSelectedPostId(post._id);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedPostId(null);
+  };
+
+  const handlePostDeleted = (postId: string) => {
+    setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
+  };
+
+  const handlePostUpdate = (updatedPost: Partial<Post>) => {
+    if (!updatedPost._id) return;
+    setPosts((prev) =>
+      prev.map((p) =>
+        p._id === updatedPost._id ? { ...p, ...updatedPost } : p
+      )
+    );
   };
 
   return (
@@ -134,17 +172,10 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Divider */}
             <hr className="w-full border-gray-700 my-6" />
 
-            {/* User posts */}
             {posts.length > 0 ? (
-              <PostGrid
-                posts={posts}
-                onPostClick={(post) => {
-                  console.log("Post clicked", post);
-                }}
-              />
+              <PostGrid posts={posts} onPostClick={handlePostClick} />
             ) : (
               <p className="text-center text-gray-400">No posts yet.</p>
             )}
@@ -155,6 +186,17 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
+
+      {selectedPostId && (
+        <PostDetailModal
+          postId={selectedPostId}
+          isOpen={!!selectedPostId}
+          onClose={handleCloseModal}
+          onPostDeleted={handlePostDeleted}
+          onPostUpdate={handlePostUpdate}
+          currentUserId={currentUserId ?? undefined}
+        />
+      )}
     </div>
   );
 }

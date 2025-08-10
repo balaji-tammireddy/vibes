@@ -1,5 +1,6 @@
 import { connect } from "@/dbSetup/dbSetup";
 import Post from "@/models/post";
+import Comment from "@/models/comment";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -20,6 +21,39 @@ export async function DELETE(req: NextRequest, { params }: { params: { postId: s
     return NextResponse.json({ message: "Post deleted" });
   } catch (err) {
     console.error("Delete post error:", err);
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
+  }
+}
+
+export async function GET(req: NextRequest, { params }: { params: { postId: string } }) {
+  try {
+    await connect();
+    
+    const { postId } = params;
+    const currentUserId = await getDataFromToken();
+
+    const post = await Post.findById(postId)
+      .populate("userId", "username name profilePic")
+      .exec();
+
+    if (!post) {
+      return NextResponse.json({ message: "Post not found" }, { status: 404 });
+    }
+
+    const likesCount = post.likes.length;
+    const isLikedByCurrentUser = currentUserId ? post.likes.includes(currentUserId) : false;
+    const commentsCount = await Comment.countDocuments({ postId: post._id });
+
+    const enrichedPost = {
+      ...post.toObject(),
+      likesCount,
+      commentsCount,
+      isLikedByCurrentUser,
+    };
+
+    return NextResponse.json({ post: enrichedPost }, { status: 200 });
+  } catch (error) {
+    console.error("Fetch post details error:", error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 }

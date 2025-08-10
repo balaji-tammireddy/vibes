@@ -17,12 +17,18 @@ export async function PUT(req: NextRequest, { params }: { params: { postId: stri
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 
-    const { caption, image } = body;
-    post.caption = caption || post.caption;
-    post.image = image || post.image;
+    const { caption, imageUrl } = body;
+    
+    if (caption !== undefined) {
+      post.caption = caption;
+    }
+    if (imageUrl !== undefined) {
+      post.imageUrl = imageUrl;
+    }
+    
     await post.save();
 
-    return NextResponse.json({ message: "Post updated", post });
+    return NextResponse.json({ message: "Post updated successfully", post });
   } catch (err) {
     console.error("Update post error:", err);
     return NextResponse.json({ message: "Server error" }, { status: 500 });

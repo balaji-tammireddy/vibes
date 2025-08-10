@@ -44,12 +44,9 @@ export default function UploadPage() {
 
   return (
     <div className="flex">
-      {/* ✅ Sidebar */}
       <div className="hidden md:block w-64">
         <Navigation />
       </div>
-
-      {/* ✅ Upload Form */}
       <div className="flex-1 flex justify-center items-start px-4 mt-10">
         <div className="max-w-md w-full">
           <div className="flex flex-col items-center gap-4">
