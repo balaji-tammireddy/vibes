@@ -27,6 +27,9 @@ export const config = {
 
     "/login",
     "/register",
-    "/"
+    "/verify",
+    "/forgot-password",
+    "/forgot-password/verify",
+    "/forgot-password/reset",
   ],
 };
