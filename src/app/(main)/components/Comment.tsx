@@ -36,8 +36,10 @@ export default function Comment({
     try {
       await axios.delete(`/api/post/comment/delete/${comment._id}`);
       onDelete(comment._id);
-    } catch (err) {
-      toast.error("Failed to delete comment");
+      toast.success("Comment deleted");
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || "Failed to delete comment";
+      toast.error(errorMessage);
     }
   };
 

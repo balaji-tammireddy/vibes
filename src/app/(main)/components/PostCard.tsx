@@ -43,14 +43,11 @@ export default function PostCard({ post }: { post: any }) {
     setCommentsCount((prev: number) => prev + 1);
   };
 
-  const handleDeleteComment = async (commentId: string) => {
-    try {
-      await axios.delete(`/api/post/comment/delete/${commentId}`);
-      setComments((prev) => prev.filter((c) => c._id !== commentId));
-      setCommentsCount((prev: number) => prev - 1);
-    } catch {
-      toast.error("Failed to delete comment");
-    }
+  // ✅ FIXED: Only update UI state, don't make API call
+  // The Comment component already handles the API call
+  const handleDeleteComment = (commentId: string) => {
+    setComments((prev) => prev.filter((c) => c._id !== commentId));
+    setCommentsCount((prev: number) => prev - 1);
   };
 
   return (
