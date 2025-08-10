@@ -31,7 +31,7 @@ export default function PostGrid({ posts, onPostClick }: Props) {
             height={300}
             className="w-full h-auto object-cover aspect-square"
           />
-          <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-4 text-white font-semibold text-sm sm:text-lg">
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-4 text-white font-semibold text-sm sm:text-lg">
             <div className="flex items-center gap-1">
               <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>{post.likesCount}</span>
