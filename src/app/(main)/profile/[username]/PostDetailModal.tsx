@@ -216,7 +216,7 @@ export default function PostDetailModal({
         }}
         className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-2"
       >
-        <X className="w-5 h-5" />
+        <X className="w-5 cursor-pointer h-5" />
       </button>
 
       <div className="bg-black text-white rounded-lg w-full max-w-6xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden relative">
@@ -261,7 +261,7 @@ export default function PostDetailModal({
                   <div className="relative">
                     <button
                       onClick={() => setShowDropdown(!showDropdown)}
-                      className="p-1 hover:bg-gray-700 rounded-full"
+                      className="p-1 cursor-pointer hover:bg-gray-700 rounded-full"
                     >
                       <MoreHorizontal className="w-5 h-5" />
                     </button>
@@ -272,13 +272,13 @@ export default function PostDetailModal({
                             setIsEditing(true);
                             setShowDropdown(false);
                           }}
-                          className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100"
+                          className="flex items-center cursor-pointer gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100"
                         >
                           <Edit className="w-4 h-4" /> Edit
                         </button>
                         <button
                           onClick={handleDelete}
-                          className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100 text-red-600"
+                          className="flex cursor-pointer items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100 text-red-600"
                         >
                           <Trash2 className="w-4 h-4" /> Delete
                         </button>
@@ -365,7 +365,7 @@ export default function PostDetailModal({
                 <div className="flex items-center gap-4">
                   <button
                     onClick={handleLikeToggle}
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 cursor-pointer"
                   >
                     <Heart
                       className={`w-5 h-5 ${

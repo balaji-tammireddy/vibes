@@ -41,7 +41,7 @@ export default function CommentInput({
       />
       <button
         onClick={submitComment}
-        className="text-blue-400 text-sm disabled:opacity-50"
+        className="text-blue-400 text-sm disabled:opacity-50 cursor-pointer"
         disabled={loading}
       >
         Post

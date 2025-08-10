@@ -154,14 +154,14 @@ export default function ProfilePage() {
                   <Button
                     onClick={() => router.push("/edit-profile")}
                     variant="outline"
-                    className="w-full sm:w-auto text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white"
+                    className="w-full cursor-pointer sm:w-auto text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white"
                   >
                     Edit Profile
                   </Button>
                   <Button
                     onClick={handleLogout}
                     variant="outline"
-                    className="w-full sm:w-auto text-red-500 border border-red-500 hover:bg-red-500 hover:text-white"
+                    className="w-full cursor-pointer sm:w-auto text-red-500 border border-red-500 hover:bg-red-500 hover:text-white"
                   >
                     Log Out
                   </Button>
