@@ -28,12 +28,18 @@ export async function DELETE(req: NextRequest, context : { params: { postId: str
 export async function GET(req: NextRequest, { params }: { params: { postId: string } }) {
   try {
     await connect();
-    
     const { postId } = params;
     const currentUserId = await getDataFromToken();
 
     const post = await Post.findById(postId)
       .populate("userId", "username name profilePic")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "userId",
+          select: "username profilePicture",
+        },
+      })
       .exec();
 
     if (!post) {
@@ -42,7 +48,7 @@ export async function GET(req: NextRequest, { params }: { params: { postId: stri
 
     const likesCount = post.likes.length;
     const isLikedByCurrentUser = currentUserId ? post.likes.includes(currentUserId) : false;
-    const commentsCount = await Comment.countDocuments({ postId: post._id });
+    const commentsCount = post.comments.length;
 
     const enrichedPost = {
       ...post.toObject(),
