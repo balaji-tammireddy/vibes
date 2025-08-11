@@ -47,7 +47,7 @@ export default function Comment({
     <div className="flex justify-between items-center text-white">
       <div className="flex gap-2 items-center">
         <Image
-          src={comment.userId?.profilePicture || "/default-image.jpg"}
+          src={comment.userId?.profilePic || "/default-image.jpg"}
           alt="profile"
           width={24}
           height={24}

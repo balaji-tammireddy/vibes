@@ -1,7 +1,5 @@
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { NextRequest, NextResponse } from "next/server";
-import { v4 as uuidv4 } from "uuid";
+import { uploadImageToCloudinary } from "@/lib/cloudinary"; // Adjust path if needed
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,19 +13,11 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const imageName = `${uuidv4()}-${file.name}`;
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
+    const result = await uploadImageToCloudinary(buffer, "instaclone");
 
-    await mkdir(uploadsDir, { recursive: true });
-
-    const imagePath = path.join(uploadsDir, imageName);
-
-    await writeFile(imagePath, buffer);
-
-    const imageUrl = `/uploads/${imageName}`;
-    return NextResponse.json({ imageUrl }, { status: 200 });
+    return NextResponse.json({ imageUrl: result.secure_url }, { status: 200 });
   } catch (err) {
-    console.error(err);
+    console.error("Cloudinary upload error:", err);
     return NextResponse.json({ error: "Failed to upload image" }, { status: 500 });
   }
 }

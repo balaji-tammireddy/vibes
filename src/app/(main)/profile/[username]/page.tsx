@@ -15,7 +15,7 @@ type User = {
   username: string;
   name: string;
   bio?: string;
-  profilePicture?: string;
+  profilePic?: string;
 };
 
 type Post = {
@@ -120,7 +120,7 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row md:items-start md:gap-12 w-full">
               <div className="flex flex-col items-center md:items-start md:w-1/3 gap-4">
                 <Image
-                  src={user.profilePicture || "/default-image.jpg"}
+                  src={user.profilePic || "/default-image.jpg"}
                   alt="profile"
                   width={120}
                   height={120}
@@ -152,7 +152,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex flex-col justify-center sm:flex-row gap-3 w-full mt-4">
                   <Button
-                    onClick={() => router.push("/edit-profile")}
+                    onClick={() => router.push(`/profile/${username}/edit-profile`)}
                     variant="outline"
                     className="w-full cursor-pointer sm:w-50 sm:mx-15 text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white"
                   >

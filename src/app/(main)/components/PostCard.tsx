@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Heart, MessageCircle, Trash2 } from "lucide-react";
+import { Heart, MessageCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "sonner";
@@ -53,7 +53,7 @@ export default function PostCard({ post }: { post: any }) {
       {/* Header */}
       <div className="flex items-center gap-3 p-3">
         <Image
-          src={post.userId?.profilePicture || "/default-image.jpg"}
+          src={post.userId?.profilePic || "/default-image.jpg"}
           alt="profile"
           width={32}
           height={32}
