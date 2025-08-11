@@ -8,8 +8,8 @@ type EditPostPageProps = {
   };
 };
 
-export default function EditPostPage({ params }: EditPostPageProps) {
-  const { postId } = params;
+export default async function EditPostPage({ params }: EditPostPageProps) {
+  const { postId } = await params;
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-black text-white">

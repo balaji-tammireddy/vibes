@@ -4,11 +4,11 @@ import { getDataFromToken } from "@/helpers/getDataFromToken";
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 
-export async function PUT(req: NextRequest, context: { params: { postId: string } }) {
+export async function PUT(req: NextRequest, {params}: { params: { postId: string } }) {
   try {
     await connect();
     const userId = await getDataFromToken();
-    const { postId } = context.params;
+    const { postId } = await params;
 
     if (!mongoose.Types.ObjectId.isValid(postId)) {
       return NextResponse.json({ message: "Invalid post ID" }, { status: 400 });
