@@ -11,7 +11,7 @@ export async function DELETE(
   try {
     await connect();
     const userId = await getDataFromToken();
-    const postId = params.postId;
+    const { postId } = await params;
 
     if (!postId) {
       return NextResponse.json({ message: "Post ID is required" }, { status: 400 });
@@ -27,11 +27,10 @@ export async function DELETE(
     }
 
     await Comment.deleteMany({ postId });
-
     await Post.findByIdAndDelete(postId);
 
     return NextResponse.json({ message: "Post and its comments deleted successfully" });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }

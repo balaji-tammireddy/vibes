@@ -2,10 +2,10 @@ import { connect } from "@/dbSetup/dbSetup";
 import User from "@/models/user";
 import { NextResponse, NextRequest } from "next/server";
 
-export async function GET(req: NextRequest, context: { params: { username: string } }) {
+export async function GET(req: NextRequest, {params}: { params: { username: string } }) {
   try {
     await connect();
-    const { username } = context.params;
+    const { username } = await params;
 
     const user = await User.findOne({ username }).select("-password");
     if (!user) {

@@ -28,7 +28,7 @@ export async function DELETE(req: NextRequest, context : { params: { postId: str
 export async function GET(req: NextRequest, { params }: { params: { postId: string } }) {
   try {
     await connect();
-    const { postId } = params;
+    const { postId } = await params;
     const currentUserId = await getDataFromToken();
 
     const post = await Post.findById(postId)

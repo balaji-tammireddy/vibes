@@ -121,18 +121,19 @@ export default function PostDetailModal({
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this post?")) return;
+const handleDelete = async () => {
+  if (!confirm("Are you sure you want to delete this post?")) return;
 
-    try {
-      await axios.delete(`/api/post/delete/${postId}`);
-      onPostDeleted?.(postId);
-      onClose();
-    } catch (error) {
-      console.error("Failed to delete post:", error);
-      alert("Failed to delete post");
-    }
-  };
+  try {
+    await axios.delete(`/api/post/delete/${postId}`);
+    onPostDeleted?.(postId);
+    onClose();
+  } catch (error: any) {
+    console.error("Failed to delete post:", error.response?.data || error.message);
+    alert("Failed to delete post: " + (error.response?.data?.message || error.message));
+  }
+};
+
 
   const handleEdit = () => {
     if (!post) return;

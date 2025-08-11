@@ -6,11 +6,11 @@ import { getDataFromToken } from "@/helpers/getDataFromToken";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, context : { params: { username: string } }) {
+export async function GET(req: Request, {params} : { params: { username: string } }) {
   try {
     await connect();
 
-    const { username } = context.params;
+    const { username } = await params;
     const user = await User.findOne({ username });
 
     if (!user) {
