@@ -93,7 +93,7 @@ export default function UploadForm() {
       <Button
         type="submit"
         disabled={loading}
-        className="w-full bg-white text-black hover:bg-gray-200"
+        className="w-full bg-white text-black hover:bg-gray-200 cursor-pointer"
       >
         {loading ? (
           <>

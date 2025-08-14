@@ -22,7 +22,7 @@ export default function SearchBar({ onSearchStart, onSearchEnd }: SearchBarProps
       } else {
         setUsers([]);
       }
-    }, 300); // 300ms debounce
+    }, 300); 
 
     return () => clearTimeout(delayedSearch);
   }, [query, setUsers]);

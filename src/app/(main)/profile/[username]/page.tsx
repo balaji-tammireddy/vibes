@@ -63,7 +63,6 @@ export default function ProfilePage() {
         ]);
         
         const userData = userRes.data.user;
-        // Ensure we have the follow counts and status
         setUser({
           ...userData,
           followersCount: userData.followersCount || 0,
@@ -119,7 +118,6 @@ export default function ProfilePage() {
         
         console.log("Unfollow response:", response.data);
         
-        // Update user state with new counts from server response
         setUser(prev => prev ? {
           ...prev,
           isFollowing: false,
@@ -138,7 +136,6 @@ export default function ProfilePage() {
         
         console.log("Follow response:", response.data);
         
-        // Update user state with new counts from server response
         setUser(prev => prev ? {
           ...prev,
           isFollowing: true,
@@ -150,7 +147,6 @@ export default function ProfilePage() {
     } catch (error: any) {
       console.error("Follow toggle failed:", error);
       
-      // Enhanced error handling
       if (error.response) {
         const errorMessage = error.response.data?.error || `Server error: ${error.response.status}`;
         console.error("Server error response:", {
@@ -202,6 +198,22 @@ export default function ProfilePage() {
   };
 
   const isOwnProfile = currentUserId === user?._id;
+
+  if (loading) {
+      return (
+        <div className="flex flex-col md:flex-row min-h-screen bg-black text-white">
+          <div className="w-full md:w-64 border-b border-gray-800 md:border-b-0">
+            <Navigation />
+          </div>
+          <div className="flex-1 flex justify-center items-center">
+            <div className="flex items-center gap-2 text-gray-400">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span>Loading...</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
   return (
     <div className="flex flex-col md:flex-row">

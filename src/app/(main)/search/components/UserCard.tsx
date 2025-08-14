@@ -108,7 +108,7 @@ export default function UserCard({ user, currentUserId }: UserCardProps) {
                 disabled={isFollowLoading}
                 size="sm"
                 variant={user.isFollowing ? "outline" : "default"}
-                className={`min-w-[80px] ${
+                className={`cursor-pointer min-w-[80px] ${
                   user.isFollowing 
                     ? "text-red-400 border-red-400 hover:bg-red-500 hover:text-white" 
                     : "bg-blue-600 hover:bg-blue-700 text-white"
@@ -138,7 +138,7 @@ export default function UserCard({ user, currentUserId }: UserCardProps) {
               onClick={() => setIsExpanded(!isExpanded)}
               variant="ghost"
               size="sm"
-              className="text-gray-400 hover:text-white hover:bg-gray-700"
+              className="text-gray-400 cursor-pointer hover:text-white hover:bg-gray-700"
             >
               {isExpanded ? (
                 <ChevronUp className="w-4 h-4" />
@@ -179,7 +179,7 @@ export default function UserCard({ user, currentUserId }: UserCardProps) {
                 onClick={handleProfileClick}
                 variant="outline"
                 size="sm"
-                className="text-blue-400 border-blue-400 hover:bg-blue-500 hover:text-white"
+                className="text-blue-400 cursor-pointer border-blue-400 hover:bg-blue-500 hover:text-white"
               >
                 View Profile
               </Button>

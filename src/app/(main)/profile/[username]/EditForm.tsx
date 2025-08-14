@@ -146,14 +146,14 @@ export default function EditForm({ postId }: EditFormProps) {
           type="button"
           onClick={() => router.back()}
           variant="outline"
-          className="flex-1 border-gray-700 text-white hover:bg-gray-800"
+          className="flex-1 border-gray-700 text-white hover:bg-gray-800 cursor-pointer"
         >
           Cancel
         </Button>
         <Button
           type="submit"
           disabled={loading}
-          className="flex-1 bg-white text-black hover:bg-gray-200"
+          className="flex-1 bg-white text-black hover:bg-gray-200 cursor-pointer"
         >
           {loading ? (
             <>

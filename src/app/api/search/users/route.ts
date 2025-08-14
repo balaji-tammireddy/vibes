@@ -20,23 +20,20 @@ export async function GET(request: NextRequest) {
 
     await connect();
 
-    // Get current user ID from JWT
     let currentUserId = null;
     try {
-      const cookieStore = await cookies(); // ✅ Fixed: await cookies() directly
+      const cookieStore = await cookies(); 
       const token = cookieStore.get("token")?.value;
       if (token) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-        currentUserId = decoded.id || decoded.userId; // ✅ Fixed: consistent with follow API
+        currentUserId = decoded.id || decoded.userId;
       }
     } catch (error) {
       console.log("Authentication error in search:", error);
-      // Continue without authentication
     }
 
-    console.log("Current user ID in search:", currentUserId); // Debug log
+    console.log("Current user ID in search:", currentUserId); 
 
-    // Search for users by username or name (case-insensitive)
     const searchRegex = new RegExp(query.trim(), "i");
     
     const users = await User.aggregate([
@@ -50,7 +47,7 @@ export async function GET(request: NextRequest) {
       },
       {
         $lookup: {
-          from: "posts", // Your posts collection name
+          from: "posts",
           localField: "_id",
           foreignField: "userId",
           as: "posts"
@@ -80,10 +77,10 @@ export async function GET(request: NextRequest) {
         }
       },
       {
-        $sort: { username: 1 } // Sort alphabetically
+        $sort: { username: 1 }
       },
       {
-        $limit: 50 // Limit results to prevent performance issues
+        $limit: 50
       }
     ]);
 

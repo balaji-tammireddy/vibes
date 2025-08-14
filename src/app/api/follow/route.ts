@@ -10,7 +10,6 @@ interface JwtPayload {
   userId?: string;
 }
 
-// Follow a user
 export async function POST(request: NextRequest) {
   console.log("POST /api/follow called"); // Debug log
   
@@ -18,7 +17,6 @@ export async function POST(request: NextRequest) {
     await connect();
     console.log("Database connected"); // Debug log
 
-    // Get target user ID from request body
     const body = await request.json();
     const { userId: targetUserId } = body;
     console.log("Target user ID:", targetUserId); // Debug log
@@ -30,7 +28,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get current user from JWT
     const cookieStore = await cookies(); // ✅ Fixed: await cookies() directly
     const token = cookieStore.get("token")?.value;
 
@@ -43,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-    const currentUserId = decoded.id || decoded.userId; // ✅ Consistent JWT field handling
+    const currentUserId = decoded.id || decoded.userId; 
     console.log("Current user ID:", currentUserId); // Debug log
 
     if (!currentUserId) {
@@ -53,7 +50,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate user IDs
     if (!mongoose.Types.ObjectId.isValid(targetUserId)) {
       return NextResponse.json(
         { error: "Invalid user ID format" },
@@ -68,7 +64,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Prevent self-following
     if (currentUserId === targetUserId) {
       return NextResponse.json(
         { error: "You cannot follow yourself" },
@@ -76,7 +71,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if target user exists
     const targetUser = await User.findById(targetUserId);
     if (!targetUser) {
       return NextResponse.json(
@@ -85,7 +79,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if already following
     const currentUser = await User.findById(currentUserId);
     if (!currentUser) {
       return NextResponse.json(
@@ -105,7 +98,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update both users
     await User.findByIdAndUpdate(
       currentUserId,
       { $addToSet: { following: new mongoose.Types.ObjectId(targetUserId) } }
@@ -116,7 +108,6 @@ export async function POST(request: NextRequest) {
       { $addToSet: { followers: new mongoose.Types.ObjectId(currentUserId) } }
     );
 
-    // Get updated counts
     const updatedTargetUser = await User.findById(targetUserId);
     const updatedCurrentUser = await User.findById(currentUserId);
 
@@ -151,14 +142,12 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Unfollow a user
 export async function DELETE(request: NextRequest) {
   console.log("DELETE /api/follow called"); // Debug log
   
   try {
     await connect();
 
-    // Get target user ID from request body
     const body = await request.json();
     const { userId: targetUserId } = body;
     console.log("Target user ID for unfollow:", targetUserId); // Debug log
@@ -170,8 +159,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Get current user from JWT
-    const cookieStore = await cookies(); // ✅ Fixed: await cookies() directly
+    const cookieStore = await cookies(); 
     const token = cookieStore.get("token")?.value;
 
     if (!token) {
@@ -182,7 +170,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-    const currentUserId = decoded.id || decoded.userId; // ✅ Consistent JWT field handling
+    const currentUserId = decoded.id || decoded.userId; 
 
     if (!currentUserId) {
       return NextResponse.json(
@@ -191,7 +179,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Validate user IDs
     if (!mongoose.Types.ObjectId.isValid(targetUserId)) {
       return NextResponse.json(
         { error: "Invalid user ID format" },
@@ -206,7 +193,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Check if target user exists
     const targetUser = await User.findById(targetUserId);
     if (!targetUser) {
       return NextResponse.json(
@@ -215,7 +201,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Check if currently following
     const currentUser = await User.findById(currentUserId);
     if (!currentUser) {
       return NextResponse.json(
@@ -235,7 +220,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Update both users
     await User.findByIdAndUpdate(
       currentUserId,
       { $pull: { following: new mongoose.Types.ObjectId(targetUserId) } }
@@ -246,7 +230,6 @@ export async function DELETE(request: NextRequest) {
       { $pull: { followers: new mongoose.Types.ObjectId(currentUserId) } }
     );
 
-    // Get updated counts
     const updatedTargetUser = await User.findById(targetUserId);
     const updatedCurrentUser = await User.findById(currentUserId);
 

@@ -14,13 +14,11 @@ export default function SearchResults({ currentUserId }: SearchResultsProps) {
   const { users } = useSearch();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Get current user ID if not provided
   useEffect(() => {
     if (!currentUserId) {
       const fetchCurrentUser = async () => {
         try {
           const res = await axios.get("/api/auth/me");
-          // You might want to pass this up to parent component
         } catch (error) {
           console.error("Failed to get current user:", error);
         }
