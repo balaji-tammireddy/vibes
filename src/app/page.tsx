@@ -14,13 +14,13 @@ export default function LandingPage() {
 
       <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
         <Link href="/register" passHref>
-          <Button size="lg" className="w-full sm:w-auto" variant="default">
+          <Button size="lg" className="w-full cursor-pointer sm:w-auto" variant="default">
             Register
           </Button>
         </Link>
 
         <Link href="/login" passHref>
-          <Button size="lg" className="w-full sm:w-auto" variant="outline">
+          <Button size="lg" className="w-full cursor-pointer sm:w-auto" variant="outline">
             Login
           </Button>
         </Link>
