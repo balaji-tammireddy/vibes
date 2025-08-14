@@ -9,6 +9,7 @@ import Navigation from "@/app/(main)/components/Navigation";
 import PostGrid from "./PostGrid";
 import PostDetailModal from "./PostDetailModal";
 import { toast } from "sonner";
+import { UserPlus, UserMinus } from "lucide-react";
 
 type User = {
   _id: string;
@@ -16,6 +17,9 @@ type User = {
   name: string;
   bio?: string;
   profilePic?: string;
+  followersCount: number;
+  followingCount: number;
+  isFollowing: boolean;
 };
 
 type Post = {
@@ -33,6 +37,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -56,7 +61,15 @@ export default function ProfilePage() {
           axios.get(`/api/profile/${username}`),
           axios.get(`/api/profile/${username}/posts`),
         ]);
-        setUser(userRes.data.user);
+        
+        const userData = userRes.data.user;
+        // Ensure we have the follow counts and status
+        setUser({
+          ...userData,
+          followersCount: userData.followersCount || 0,
+          followingCount: userData.followingCount || 0,
+          isFollowing: userData.isFollowing || false,
+        });
 
         const postsData = postsRes.data.posts || [];
         const mappedPosts = postsData.map((post: any) => ({
@@ -75,6 +88,87 @@ export default function ProfilePage() {
 
     if (username) fetchData();
   }, [username]);
+
+  const handleFollowToggle = async () => {
+    if (!currentUserId || !user) {
+      toast.error("Please log in to follow users");
+      return;
+    }
+
+    if (currentUserId === user._id) {
+      toast.error("You cannot follow yourself");
+      return;
+    }
+
+    try {
+      setIsFollowLoading(true);
+      
+      console.log("Follow toggle attempt:", {
+        action: user.isFollowing ? "unfollow" : "follow",
+        targetUserId: user._id,
+        currentUserId
+      });
+
+      if (user.isFollowing) {
+        const response = await axios.delete(`/api/follow`, { 
+          data: { userId: user._id },
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        console.log("Unfollow response:", response.data);
+        
+        // Update user state with new counts from server response
+        setUser(prev => prev ? {
+          ...prev,
+          isFollowing: false,
+          followersCount: response.data.targetUser.followersCount
+        } : null);
+        
+        toast.success(`Unfollowed ${user.username}`);
+      } else {
+        const response = await axios.post(`/api/follow`, { 
+          userId: user._id 
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        console.log("Follow response:", response.data);
+        
+        // Update user state with new counts from server response
+        setUser(prev => prev ? {
+          ...prev,
+          isFollowing: true,
+          followersCount: response.data.targetUser.followersCount
+        } : null);
+        
+        toast.success(`Following ${user.username}`);
+      }
+    } catch (error: any) {
+      console.error("Follow toggle failed:", error);
+      
+      // Enhanced error handling
+      if (error.response) {
+        const errorMessage = error.response.data?.error || `Server error: ${error.response.status}`;
+        console.error("Server error response:", {
+          status: error.response.status,
+          data: error.response.data,
+        });
+        toast.error(errorMessage);
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+        toast.error("Network error - please check your connection");
+      } else {
+        console.error("Request setup error:", error.message);
+        toast.error("Failed to update follow status");
+      }
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -106,6 +200,8 @@ export default function ProfilePage() {
       )
     );
   };
+
+  const isOwnProfile = currentUserId === user?._id;
 
   return (
     <div className="flex flex-col md:flex-row">
@@ -142,29 +238,64 @@ export default function ProfilePage() {
                     <p className="text-sm text-gray-400">Posts</p>
                   </div>
                   <div className="text-center">
-                    <p className="font-bold text-lg">0</p>
+                    <p className="font-bold text-lg">{user.followersCount}</p>
                     <p className="text-sm text-gray-400">Followers</p>
                   </div>
                   <div className="text-center">
-                    <p className="font-bold text-lg">0</p>
+                    <p className="font-bold text-lg">{user.followingCount}</p>
                     <p className="text-sm text-gray-400">Following</p>
                   </div>
                 </div>
                 <div className="flex flex-col justify-center sm:flex-row gap-3 w-full mt-4">
-                  <Button
-                    onClick={() => router.push(`/profile/${username}/edit-profile`)}
-                    variant="outline"
-                    className="w-full cursor-pointer sm:w-50 sm:mx-15 text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white"
-                  >
-                    Edit Profile
-                  </Button>
-                  <Button
-                    onClick={handleLogout}
-                    variant="outline"
-                    className="w-full cursor-pointer sm:w-50 sm:mx-15 text-red-500 border border-red-500 hover:bg-red-500 hover:text-white"
-                  >
-                    Log Out
-                  </Button>
+                  {isOwnProfile ? (
+                    <>
+                      <Button
+                        onClick={() => router.push(`/profile/${username}/edit-profile`)}
+                        variant="outline"
+                        className="w-full cursor-pointer sm:w-50 sm:mx-15 text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white"
+                      >
+                        Edit Profile
+                      </Button>
+                      <Button
+                        onClick={handleLogout}
+                        variant="outline"
+                        className="w-full cursor-pointer sm:w-50 sm:mx-15 text-red-500 border border-red-500 hover:bg-red-500 hover:text-white"
+                      >
+                        Log Out
+                      </Button>
+                    </>
+                  ) : (
+                    currentUserId && (
+                      <Button
+                        onClick={handleFollowToggle}
+                        disabled={isFollowLoading}
+                        variant={user.isFollowing ? "outline" : "default"}
+                        className={`w-full sm:w-50 cursor-pointer ${
+                          user.isFollowing 
+                            ? "text-red-400 border-red-400 hover:bg-red-500 hover:text-white" 
+                            : "bg-blue-600 hover:bg-blue-700 text-white"
+                        }`}
+                      >
+                        {isFollowLoading ? (
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <>
+                            {user.isFollowing ? (
+                              <>
+                                <UserMinus className="w-4 h-4 mr-2" />
+                                Unfollow
+                              </>
+                            ) : (
+                              <>
+                                <UserPlus className="w-4 h-4 mr-2" />
+                                Follow
+                              </>
+                            )}
+                          </>
+                        )}
+                      </Button>
+                    )
+                  )}
                 </div>
               </div>
             </div>
