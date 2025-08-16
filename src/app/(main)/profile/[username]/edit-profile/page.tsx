@@ -11,12 +11,19 @@ export default async function EditProfilePage({ params }: EditProfilePageProps) 
   const { username } = await params;
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-black text-white">
-      <div className="w-full md:w-64 border-b border-gray-800 md:border-b-0">
-        <Navigation />
-      </div>
-      <div className="flex-1 p-4 flex justify-center items-start md:pr-50">
-        <EditProfileForm username={username} />
+    <div className="min-h-screen bg-black">
+      <Navigation />
+      <div className="flex items-center justify-center p-4 pt-20">
+        <div className="w-full max-w-lg mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-semibold text-white mb-2">Edit Profile</h1>
+            <p className="text-gray-400">Update your profile information</p>
+          </div>
+          
+          <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-lg p-6">
+            <EditProfileForm username={username} />
+          </div>
+        </div>
       </div>
     </div>
   );

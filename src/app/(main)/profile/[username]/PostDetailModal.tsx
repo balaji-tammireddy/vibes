@@ -10,6 +10,7 @@ import {
   Heart,
   MessageCircle,
   Edit,
+  Calendar,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -121,99 +122,131 @@ export default function PostDetailModal({
     }
   };
 
-const handleDelete = async () => {
-  if (!confirm("Are you sure you want to delete this post?")) return;
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this post?")) return;
 
-  try {
-    await axios.delete(`/api/post/delete/${postId}`);
-    onPostDeleted?.(postId);
-    onClose();
-  } catch (error: any) {
-    console.error("Failed to delete post:", error.response?.data || error.message);
-    alert("Failed to delete post: " + (error.response?.data?.message || error.message));
-  }
-};
-
+    try {
+      await axios.delete(`/api/post/delete/${postId}`);
+      onPostDeleted?.(postId);
+      onClose();
+    } catch (error: any) {
+      console.error("Failed to delete post:", error.response?.data || error.message);
+      alert("Failed to delete post: " + (error.response?.data?.message || error.message));
+    }
+  };
 
   const handleEdit = () => {
     if (!post) return;
     router.push(`/profile/${post.userId.username}/post/edit/${post._id}`);
   };
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (showDropdown) setShowDropdown(false);
+    };
+    
+    if (showDropdown) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [showDropdown]);
+
   const isOwnPost = post && currentUserId && post.userId._id === currentUserId;
+  
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 px-2 sm:px-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 px-2 sm:px-6">
+      {/* Close Button */}
       <button
         onClick={() => {
           if (post) onPostUpdate?.(post);
           onClose();
         }}
-        className="absolute top-4 right-4 z-50 bg-white/10 hover:bg-white/20 text-white rounded-full p-2"
+        className="absolute top-4 right-4 z-50 p-2 bg-gray-800 hover:bg-gray-700 text-white rounded-full transition-colors duration-200"
       >
-        <X className="w-5 cursor-pointer h-5" />
+        <X className="w-5 h-5" />
       </button>
 
-      <div className="bg-black text-white rounded-lg w-full max-w-6xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden relative">
+      {/* Modal Content */}
+      <div className="bg-gray-900 border border-gray-700 rounded-lg w-full max-w-6xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden shadow-2xl">
         {loading ? (
           <div className="w-full h-96 flex items-center justify-center">
-            <p className="text-gray-400">Loading...</p>
+            <div className="flex items-center gap-2 text-gray-400">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span>Loading post...</span>
+            </div>
           </div>
         ) : !post ? (
           <div className="w-full h-96 flex items-center justify-center">
-            <p className="text-gray-400">Post not found</p>
+            <div className="text-center">
+              <p className="text-gray-400 text-lg mb-2">Post not found</p>
+              <p className="text-gray-500 text-sm">This post may have been deleted</p>
+            </div>
           </div>
         ) : (
           <>
-            {/* Image */}
-            <div className="w-full md:w-3/5 bg-black flex items-center justify-center max-h-[400px] md:max-h-full">
+            {/* Image Section */}
+            <div className="w-full md:w-3/5 bg-black flex items-center justify-center min-h-[300px] md:min-h-[500px]">
               <Image
                 src={post.imageUrl}
                 alt="Post image"
                 width={800}
                 height={800}
-                className="max-w-full max-h-full object-contain"
+                className="max-w-full max-h-full object-contain rounded-l-lg"
               />
             </div>
 
-            {/* Info */}
-            <div className="w-full md:w-2/5 flex flex-col border-t md:border-t-0 md:border-l border-gray-800 max-h-[60vh] md:max-h-full">
+            {/* Info Section */}
+            <div className="w-full md:w-2/5 flex flex-col border-t md:border-t-0 md:border-l border-gray-700">
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-gray-800">
+              <div className="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-800">
                 <div className="flex items-center gap-3">
                   <Image
                     src={post.userId.profilePic || "/default-image.jpg"}
                     alt={post.userId.username}
                     width={32}
                     height={32}
-                    className="rounded-full object-cover"
+                    className="rounded-full object-cover border border-gray-600"
                   />
-                  <span className="font-semibold text-sm">
-                    {post.userId.username}
-                  </span>
+                  <div>
+                    <p className="font-semibold text-white text-sm">
+                      {post.userId.username}
+                    </p>
+                    <p className="text-xs text-gray-400">{post.userId.name}</p>
+                  </div>
                 </div>
                 {isOwnPost && (
                   <div className="relative">
                     <button
-                      onClick={() => setShowDropdown(!showDropdown)}
-                      className="p-1 cursor-pointer hover:bg-gray-700 rounded-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowDropdown(!showDropdown);
+                      }}
+                      className="p-2 hover:bg-gray-700 rounded-full transition-colors duration-200"
                     >
-                      <MoreHorizontal className="w-5 h-5" />
+                      <MoreHorizontal className="w-5 h-5 text-gray-400" />
                     </button>
                     {showDropdown && (
-                      <div className="absolute right-0 top-8 bg-white text-black border rounded shadow-lg py-1 min-w-[120px] z-10">
+                      <div className="absolute right-0 top-12 bg-gray-800 border border-gray-600 rounded-lg shadow-lg py-2 min-w-[140px] z-20">
                         <button
-                          onClick={handleEdit}
-                          className="flex items-center cursor-pointer gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit();
+                          }}
+                          className="flex items-center gap-3 w-full px-4 py-2 text-sm text-white hover:bg-gray-700 transition-colors duration-200"
                         >
-                          <Edit className="w-4 h-4" /> Edit
+                          <Edit className="w-4 h-4" /> Edit Post
                         </button>
                         <button
-                          onClick={handleDelete}
-                          className="flex cursor-pointer items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100 text-red-600"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete();
+                          }}
+                          className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-400 hover:bg-gray-700 transition-colors duration-200"
                         >
-                          <Trash2 className="w-4 h-4" /> Delete
+                          <Trash2 className="w-4 h-4" /> Delete Post
                         </button>
                       </div>
                     )}
@@ -222,62 +255,75 @@ const handleDelete = async () => {
               </div>
 
               {/* Caption */}
-              <div className="p-4 border-b border-gray-800">
-                <p className="text-sm whitespace-pre-wrap">{post.caption}</p>
-              </div>
+              {post.caption && (
+                <div className="p-4 border-b border-gray-700">
+                  <p className="text-sm text-white whitespace-pre-wrap leading-relaxed">
+                    {post.caption}
+                  </p>
+                </div>
+              )}
 
               {/* Comments */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
                 {comments.length > 0 ? (
                   comments.map((comment) => (
                     <div key={comment._id} className="flex items-start gap-3">
                       <Image
                         src={comment.userId.profilePic || "/default-image.jpg"}
                         alt={comment.userId.username || "User"}
-                        width={24}
-                        height={24}
-                        className="rounded-full object-cover mt-1"
+                        width={28}
+                        height={28}
+                        className="rounded-full object-cover border border-gray-600"
                       />
-                      <div>
-                        <p className="text-sm">
-                          <span className="font-semibold mr-2">
-                            {comment.userId.username}
-                          </span>
-                          {comment.text}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">
+                      <div className="flex-1">
+                        <div className="bg-gray-800 rounded-lg p-3">
+                          <p className="text-sm text-white">
+                            <span className="font-semibold text-blue-400 mr-2">
+                              {comment.userId.username}
+                            </span>
+                            {comment.text}
+                          </p>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1 ml-3">
                           {new Date(comment.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-400">No comments yet</p>
+                  <div className="text-center py-8">
+                    <MessageCircle className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                    <p className="text-sm text-gray-400">No comments yet</p>
+                    <p className="text-xs text-gray-500">Be the first to comment!</p>
+                  </div>
                 )}
               </div>
 
-              {/* Stats */}
-              <div className="border-t border-gray-800 p-4 text-sm text-white flex flex-col gap-1">
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={handleLikeToggle}
-                    className="flex items-center gap-1 cursor-pointer"
-                  >
-                    <Heart
-                      className={`w-5 h-5 ${
-                        isLiked ? "fill-red-500 text-red-500" : "text-white"
-                      }`}
-                    />
-                    <span>{likesCount}</span>
-                  </button>
-                  <div className="flex items-center gap-1">
-                    <MessageCircle className="w-5 h-5 text-white" />
-                    <span>{post.commentsCount}</span>
+              {/* Stats & Actions */}
+              <div className="border-t border-gray-700 p-4 bg-gray-800">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-6">
+                    <button
+                      onClick={handleLikeToggle}
+                      className="flex items-center gap-2 hover:bg-gray-700 rounded-full px-3 py-2 transition-colors duration-200"
+                    >
+                      <Heart
+                        className={`w-6 h-6 transition-colors duration-200 ${
+                          isLiked ? "fill-red-500 text-red-500" : "text-gray-400 hover:text-red-400"
+                        }`}
+                      />
+                      <span className="text-sm text-white font-medium">{likesCount}</span>
+                    </button>
+                    <div className="flex items-center gap-2">
+                      <MessageCircle className="w-6 h-6 text-gray-400" />
+                      <span className="text-sm text-white font-medium">{post.commentsCount}</span>
+                    </div>
                   </div>
                 </div>
-                <p className="text-xs text-gray-400">
-                  {new Date(post.createdAt).toLocaleDateString()}
-                </p>
+                <div className="flex items-center gap-2 text-xs text-gray-400">
+                  <Calendar className="w-4 h-4" />
+                  <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                </div>
               </div>
             </div>
           </>

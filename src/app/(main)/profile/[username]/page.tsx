@@ -9,7 +9,7 @@ import Navigation from "@/app/(main)/components/Navigation";
 import PostGrid from "./PostGrid";
 import PostDetailModal from "./PostDetailModal";
 import { toast } from "sonner";
-import { UserPlus, UserMinus } from "lucide-react";
+import { UserPlus, UserMinus, Settings, LogOut } from "lucide-react";
 
 type User = {
   _id: string;
@@ -102,12 +102,6 @@ export default function ProfilePage() {
     try {
       setIsFollowLoading(true);
       
-      console.log("Follow toggle attempt:", {
-        action: user.isFollowing ? "unfollow" : "follow",
-        targetUserId: user._id,
-        currentUserId
-      });
-
       if (user.isFollowing) {
         const response = await axios.delete(`/api/follow`, { 
           data: { userId: user._id },
@@ -115,8 +109,6 @@ export default function ProfilePage() {
             'Content-Type': 'application/json'
           }
         });
-        
-        console.log("Unfollow response:", response.data);
         
         setUser(prev => prev ? {
           ...prev,
@@ -134,8 +126,6 @@ export default function ProfilePage() {
           }
         });
         
-        console.log("Follow response:", response.data);
-        
         setUser(prev => prev ? {
           ...prev,
           isFollowing: true,
@@ -149,16 +139,10 @@ export default function ProfilePage() {
       
       if (error.response) {
         const errorMessage = error.response.data?.error || `Server error: ${error.response.status}`;
-        console.error("Server error response:", {
-          status: error.response.status,
-          data: error.response.data,
-        });
         toast.error(errorMessage);
       } else if (error.request) {
-        console.error("No response received:", error.request);
         toast.error("Network error - please check your connection");
       } else {
-        console.error("Request setup error:", error.message);
         toast.error("Failed to update follow status");
       }
     } finally {
@@ -200,130 +184,187 @@ export default function ProfilePage() {
   const isOwnProfile = currentUserId === user?._id;
 
   if (loading) {
-      return (
-        <div className="flex flex-col md:flex-row min-h-screen bg-black text-white">
-          <div className="w-full md:w-64 border-b border-gray-800 md:border-b-0">
-            <Navigation />
-          </div>
-          <div className="flex-1 flex justify-center items-center">
-            <div className="flex items-center gap-2 text-gray-400">
-              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              <span>Loading...</span>
-            </div>
+    return (
+      <div className="min-h-screen bg-black">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-[80vh]">
+          <div className="flex items-center gap-2 text-gray-400">
+            <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <span>Loading profile...</span>
           </div>
         </div>
-      );
-    }
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col md:flex-row">
+    <div className="min-h-screen bg-black">
       <Navigation />
-      <div className="flex-1 p-4 text-white">
-        {loading ? (
-          <div className="flex justify-center items-center min-h-[400px]">
-            <p className="text-gray-400">Loading...</p>
-          </div>
-        ) : user ? (
-          <div className="max-w-4xl mx-auto w-full">
-            <div className="flex flex-col md:flex-row md:items-start md:gap-12 w-full">
-              <div className="flex flex-col items-center md:items-start md:w-1/3 gap-4">
-                <Image
-                  src={user.profilePic || "/default-image.jpg"}
-                  alt="profile"
-                  width={120}
-                  height={120}
-                  className="rounded-full object-cover"
-                />
-                <p className="text-sm italic text-gray-400 text-center md:text-left">
-                  {user.bio || "No bio added"}
-                </p>
-              </div>
+      <div className="max-w-4xl mx-auto px-4 py-6 text-white">
+        {user ? (
+          <>
+            {/* Profile Header */}
+            <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 mb-6">
+              <div className="flex flex-col md:flex-row md:items-start gap-6">
+                {/* Profile Picture */}
+                <div className="flex flex-col items-center md:items-start">
+                  <Image
+                    src={user.profilePic || "/default-image.jpg"}
+                    alt="profile"
+                    width={120}
+                    height={120}
+                    className="rounded-full object-cover border-2 border-gray-700"
+                  />
+                </div>
 
-              <div className="flex flex-col items-center md:items-start md:w-2/3 gap-4 mt-6 md:mt-0">
-                <div className="text-center md:text-left">
-                  <p className="text-xl font-bold">{user.username}</p>
-                  <p className="text-md text-gray-400">{user.name}</p>
-                </div>
-                <div className="flex justify-center md:justify-between gap-8 w-full flex-wrap">
-                  <div className="text-center">
-                    <p className="font-bold text-lg">{posts.length}</p>
-                    <p className="text-sm text-gray-400">Posts</p>
+                {/* Profile Info */}
+                <div className="flex-1 text-center md:text-left">
+                  <div className="mb-4">
+                    <h1 className="text-2xl font-bold text-white mb-1">{user.username}</h1>
+                    <p className="text-gray-400">{user.name}</p>
                   </div>
-                  <div className="text-center">
-                    <p className="font-bold text-lg">{user.followersCount}</p>
-                    <p className="text-sm text-gray-400">Followers</p>
+
+                  {/* Stats */}
+                  <div className="flex justify-between items-center mb-4 max-w-md">
+                    <div className="text-center flex-1">
+                      <p className="font-bold text-lg text-white">{posts.length}</p>
+                      <p className="text-sm text-gray-400">Posts</p>
+                    </div>
+                    <div className="text-center flex-1">
+                      <p className="font-bold text-lg text-white">{user.followersCount}</p>
+                      <p className="text-sm text-gray-400">Followers</p>
+                    </div>
+                    <div className="text-center flex-1">
+                      <p className="font-bold text-lg text-white">{user.followingCount}</p>
+                      <p className="text-sm text-gray-400">Following</p>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <p className="font-bold text-lg">{user.followingCount}</p>
-                    <p className="text-sm text-gray-400">Following</p>
-                  </div>
-                </div>
-                <div className="flex flex-col justify-center sm:flex-row gap-3 w-full mt-4">
-                  {isOwnProfile ? (
-                    <>
-                      <Button
-                        onClick={() => router.push(`/profile/${username}/edit-profile`)}
-                        variant="outline"
-                        className="w-full cursor-pointer sm:w-50 sm:mx-15 text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white"
-                      >
-                        Edit Profile
-                      </Button>
-                      <Button
-                        onClick={handleLogout}
-                        variant="outline"
-                        className="w-full cursor-pointer sm:w-50 sm:mx-15 text-red-500 border border-red-500 hover:bg-red-500 hover:text-white"
-                      >
-                        Log Out
-                      </Button>
-                    </>
-                  ) : (
-                    currentUserId && (
-                      <Button
-                        onClick={handleFollowToggle}
-                        disabled={isFollowLoading}
-                        variant={user.isFollowing ? "outline" : "default"}
-                        className={`w-full sm:w-50 cursor-pointer ${
-                          user.isFollowing 
-                            ? "text-red-400 border-red-400 hover:bg-red-500 hover:text-white" 
-                            : "bg-blue-600 hover:bg-blue-700 text-white"
-                        }`}
-                      >
-                        {isFollowLoading ? (
-                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <>
-                            {user.isFollowing ? (
-                              <>
-                                <UserMinus className="w-4 h-4 mr-2" />
-                                Unfollow
-                              </>
-                            ) : (
-                              <>
-                                <UserPlus className="w-4 h-4 mr-2" />
-                                Follow
-                              </>
-                            )}
-                          </>
-                        )}
-                      </Button>
-                    )
+
+                  {/* Bio */}
+                  {user.bio && (
+                    <p className="text-gray-300 mb-4 max-w-md">{user.bio}</p>
                   )}
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3 max-w-md">
+                    {isOwnProfile ? (
+                      <>
+                        <Button
+                          onClick={() => router.push(`/profile/${username}/edit-profile`)}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200"
+                        >
+                          <Settings className="w-4 h-4 mr-2" />
+                          Edit Profile
+                        </Button>
+                        <Button
+                          onClick={handleLogout}
+                          className="flex-1 bg-gray-700 hover:bg-red-600 text-white border-gray-600 transition-colors duration-200"
+                        >
+                          <LogOut className="w-4 h-4 mr-2" />
+                          Log Out
+                        </Button>
+                      </>
+                    ) : (
+                      currentUserId && (
+                        <Button
+                          onClick={handleFollowToggle}
+                          disabled={isFollowLoading}
+                          className={`flex-1 transition-colors duration-200 ${
+                            user.isFollowing 
+                              ? "bg-gray-700 hover:bg-red-600 text-white border-gray-600" 
+                              : "bg-blue-600 hover:bg-blue-700 text-white"
+                          }`}
+                        >
+                          {isFollowLoading ? (
+                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                          ) : (
+                            <>
+                              {user.isFollowing ? (
+                                <>
+                                  <UserMinus className="w-4 h-4 mr-2" />
+                                  Unfollow
+                                </>
+                              ) : (
+                                <>
+                                  <UserPlus className="w-4 h-4 mr-2" />
+                                  Follow
+                                </>
+                              )}
+                            </>
+                          )}
+                        </Button>
+                      )
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-            <hr className="w-full border-gray-700 my-6" />
-            {posts.length > 0 ? (
-              <PostGrid posts={posts} onPostClick={handlePostClick} />
-            ) : (
-              <p className="text-center text-gray-400">No posts yet.</p>
-            )}
-          </div>
+
+            {/* Posts Grid */}
+            <div className="bg-gray-900 border border-gray-700 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-white mb-4">
+                Posts ({posts.length})
+              </h2>
+              {posts.length > 0 ? (
+                <PostGrid posts={posts} onPostClick={handlePostClick} />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <div className="text-center space-y-4">
+                    {/* Camera Icon */}
+                    <div className="w-20 h-20 mx-auto bg-gray-800 rounded-full flex items-center justify-center mb-6">
+                      <svg 
+                        className="w-10 h-10 text-gray-600" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={1.5} 
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
+                        />
+                      </svg>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-xl font-semibold text-white mb-2">
+                        {isOwnProfile ? "No posts yet" : `${user.username} hasn't posted yet`}
+                      </h3>
+                      <p className="text-gray-400 max-w-sm mx-auto leading-relaxed">
+                        {isOwnProfile 
+                          ? "Start sharing your moments! Your posts will appear here once you create them." 
+                          : "When they share photos and videos, you'll see them here."
+                        }
+                      </p>
+                    </div>
+                    
+                    {isOwnProfile && (
+                      <div className="pt-4">
+                        <Button
+                          onClick={() => router.push("/upload")} // Adjust the route as needed
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+                        >
+                          Share your first post
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
         ) : (
-          <div className="flex justify-center items-center min-h-[400px]">
-            <p className="text-gray-400">User not found</p>
+          <div className="bg-gray-900 border border-gray-700 rounded-lg p-12">
+            <div className="text-center">
+              <p className="text-gray-400 text-lg">User not found</p>
+              <p className="text-gray-500 text-sm mt-2">The profile you're looking for doesn't exist</p>
+            </div>
           </div>
         )}
       </div>
+
+      {/* Post Detail Modal */}
       {selectedPostId && (
         <PostDetailModal
           postId={selectedPostId}

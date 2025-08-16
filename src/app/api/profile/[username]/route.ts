@@ -17,7 +17,7 @@ export async function GET(
   try {
     await connect();
     
-    const { username } = params;
+    const { username } = await params;
 
     if (!username) {
       return NextResponse.json(
@@ -26,7 +26,6 @@ export async function GET(
       );
     }
 
-    // Get current user ID from JWT
     let currentUserId = null;
     try {
       const cookieStore = await cookies();
@@ -37,12 +36,10 @@ export async function GET(
       }
     } catch (error) {
       console.log("Authentication error in profile:", error);
-      // Continue without authentication
     }
 
     console.log("Profile request for:", username, "Current user:", currentUserId);
 
-    // Find user by username and get follower/following counts
     const userAggregation = await User.aggregate([
       {
         $match: { username: username }
