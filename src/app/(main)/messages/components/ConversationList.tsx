@@ -1,4 +1,3 @@
-// app/(main)/messages/components/ConversationList.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -10,7 +9,7 @@ import { formatDistanceToNow } from "date-fns";
 
 interface ConversationListProps {
   currentUserId?: string;
-  onConversationSelect?: () => void; // For mobile navigation
+  onConversationSelect?: () => void;
 }
 
 export default function ConversationList({ 
@@ -35,7 +34,6 @@ export default function ConversationList({
     loadConversations();
   }, [loadConversations]);
 
-  // Filter conversations based on search query
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setFilteredConversations(conversations);
@@ -54,7 +52,6 @@ export default function ConversationList({
     await loadMessages(conversation._id);
     await markAsRead(conversation._id);
     
-    // Call mobile navigation callback
     onConversationSelect?.();
   };
 
@@ -125,7 +122,6 @@ export default function ConversationList({
           </button>
         </div>
         
-        {/* Search bar for conversations */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
@@ -139,8 +135,6 @@ export default function ConversationList({
           />
         </div>
       </div>
-
-      {/* Conversations list */}
       <div className="flex-1 overflow-y-auto min-h-0">
         {searchQuery && filteredConversations.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-8 text-gray-400">
@@ -158,7 +152,6 @@ export default function ConversationList({
                 currentConversation?._id === conversation._id ? 'bg-gray-800 border-l-4 border-l-blue-500' : ''
               }`}
             >
-              {/* Profile picture */}
               <div className="relative flex-shrink-0">
                 <Image
                   src={conversation.otherUser.profilePic || "/default-image.jpg"}
@@ -168,8 +161,6 @@ export default function ConversationList({
                   className="rounded-full object-cover"
                 />
               </div>
-
-              {/* Conversation details */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
                   <h3 className="font-semibold text-white truncate">
@@ -181,13 +172,11 @@ export default function ConversationList({
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  {/* Issue #5 fix: Show last message regardless of sender */}
                   <p className="text-sm text-gray-400 truncate">
                     {conversation.lastMessage.senderId === currentUserId ? 'You: ' : ''}
                     {conversation.lastMessage.text}
                   </p>
                   
-                  {/* Unread count */}
                   {conversation.unreadCount > 0 && (
                     <div className="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 ml-2">
                       {conversation.unreadCount > 99 ? '99+' : conversation.unreadCount}
@@ -195,14 +184,12 @@ export default function ConversationList({
                   )}
                 </div>
                 
-                {/* Issue #7 fix: Remove @username */}
               </div>
             </div>
           ))
         )}
       </div>
 
-      {/* New Message Modal */}
       <NewConversationModal
         isOpen={showNewMessageModal}
         onClose={() => setShowNewMessageModal(false)}

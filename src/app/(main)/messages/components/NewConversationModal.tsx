@@ -1,4 +1,3 @@
-// app/(main)/messages/components/NewConversationModal.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -19,7 +18,7 @@ interface NewConversationModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUserId?: string;
-  onConversationStart?: () => void; // For mobile navigation
+  onConversationStart?: () => void; 
 }
 
 export default function NewConversationModal({ 
@@ -34,7 +33,6 @@ export default function NewConversationModal({
   const [isStarting, setIsStarting] = useState(false);
   const { selectConversation, loadMessages } = useMessages();
 
-  // Search for users
   useEffect(() => {
     const delayedSearch = setTimeout(async () => {
       if (searchQuery.trim().length > 0) {
@@ -52,7 +50,6 @@ export default function NewConversationModal({
       setIsSearching(true);
       const response = await axios.get(`/api/search/users?query=${encodeURIComponent(query)}`);
       
-      // Issue #2 fix: Filter out current user from search results
       const users = response.data.users || [];
       const filteredUsers = users.filter((user: User) => user._id !== currentUserId);
       
@@ -74,18 +71,15 @@ export default function NewConversationModal({
     try {
       setIsStarting(true);
       
-      // Start conversation
       const response = await axios.post("/api/messages/start", { userId: user._id });
       const conversation = response.data.conversation;
       
-      // Select the conversation
       selectConversation(conversation);
       await loadMessages(user._id);
       
       toast.success(`Started conversation with ${user.name}`);
       onClose();
       
-      // Call mobile navigation callback
       onConversationStart?.();
     } catch (error: any) {
       console.error("Failed to start conversation:", error);
@@ -95,7 +89,6 @@ export default function NewConversationModal({
     }
   };
 
-  // Reset search when modal closes
   useEffect(() => {
     if (!isOpen) {
       setSearchQuery("");
@@ -108,7 +101,6 @@ export default function NewConversationModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-gray-800 rounded-lg w-full max-w-md max-h-[80vh] flex flex-col">
-        {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700 flex-shrink-0">
           <h2 className="text-lg font-semibold text-white">New Message</h2>
           <button
@@ -119,7 +111,6 @@ export default function NewConversationModal({
           </button>
         </div>
 
-        {/* Search */}
         <div className="p-4 border-b border-gray-700 flex-shrink-0">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -136,7 +127,6 @@ export default function NewConversationModal({
           </div>
         </div>
 
-        {/* Results */}
         <div className="flex-1 overflow-y-auto min-h-0">
           {isSearching ? (
             <div className="flex items-center justify-center p-8">

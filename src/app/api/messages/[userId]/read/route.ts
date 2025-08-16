@@ -1,4 +1,3 @@
-// app/api/messages/[userId]/read/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbSetup/dbSetup";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
@@ -21,8 +20,6 @@ export async function POST(
         { status: 400 }
       );
     }
-
-    // Mark all messages from other user as read
     const result = await message.updateMany(
       {
         senderId: new mongoose.Types.ObjectId(otherUserId),

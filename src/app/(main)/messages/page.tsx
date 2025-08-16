@@ -1,4 +1,3 @@
-// app/(main)/messages/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -12,7 +11,6 @@ function MessagesContent({ currentUserId }: { currentUserId: string | null }) {
   const { currentConversation } = useMessages();
   const [showChat, setShowChat] = useState(false);
 
-  // Auto-show chat when conversation is selected on mobile
   useEffect(() => {
     if (currentConversation) {
       setShowChat(true);
@@ -29,15 +27,12 @@ function MessagesContent({ currentUserId }: { currentUserId: string | null }) {
 
   return (
     <>
-      {/* Navigation - hidden on mobile when viewing chat */}
       <div className={`${showChat ? 'hidden md:block' : 'block'}`}>
         <Navigation />
       </div>
       
-              <div className={`flex md:flex-row h-screen bg-black text-white overflow-hidden md:pl-16`}>
-        {/* Messages container */}
+      <div className={`flex md:flex-row h-screen bg-black text-white overflow-hidden md:pl-16`}>
         <div className="flex-1 flex h-full">
-          {/* Mobile: Show either conversations or chat */}
           <div className="md:hidden w-full h-full">
             {showChat ? (
               <ChatWindow
@@ -45,7 +40,7 @@ function MessagesContent({ currentUserId }: { currentUserId: string | null }) {
                 onBack={handleBackToList}
               />
             ) : (
-              <div className="h-full pb-16"> {/* pb-16 to account for fixed bottom navigation */}
+              <div className="h-full pb-16">
                 <ConversationList 
                   currentUserId={currentUserId || undefined}
                   onConversationSelect={handleConversationSelect}
@@ -53,8 +48,6 @@ function MessagesContent({ currentUserId }: { currentUserId: string | null }) {
               </div>
             )}
           </div>
-
-          {/* Desktop: Show both side by side */}
           <div className="hidden md:flex w-full h-full">
             {/* Conversations list */}
             <div className="w-80 border-r border-gray-700 h-full">
@@ -63,8 +56,6 @@ function MessagesContent({ currentUserId }: { currentUserId: string | null }) {
                 onConversationSelect={handleConversationSelect}
               />
             </div>
-
-            {/* Chat window */}
             <div className="flex-1 h-full">
               <ChatWindow
                 currentUserId={currentUserId || undefined}

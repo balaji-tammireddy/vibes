@@ -1,4 +1,3 @@
-// app/api/messages/conversations/[userId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbSetup/dbSetup";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
@@ -22,7 +21,6 @@ export async function DELETE(
       );
     }
 
-    // Delete all messages between current user and other user
     await message.deleteMany({
       $or: [
         {

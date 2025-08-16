@@ -1,4 +1,3 @@
-// app/(main)/messages/components/ChatWindow.tsx
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -31,14 +30,12 @@ export default function ChatWindow({ currentUserId, onBack }: ChatWindowProps) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
-  // Auto-resize textarea
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -46,7 +43,6 @@ export default function ChatWindow({ currentUserId, onBack }: ChatWindowProps) {
     }
   };
 
-  // Load more messages on scroll to top
   const handleScroll = async () => {
     if (!messagesContainerRef.current || !hasMore || isLoading) return;
     
@@ -64,7 +60,6 @@ export default function ChatWindow({ currentUserId, onBack }: ChatWindowProps) {
     const text = messageText.trim();
     setMessageText("");
     
-    // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
@@ -141,7 +136,6 @@ export default function ChatWindow({ currentUserId, onBack }: ChatWindowProps) {
 
   return (
     <div className="flex flex-col h-full bg-gray-900">
-      {/* Chat header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-800 flex-shrink-0">
         <div className="flex items-center gap-3">
           {onBack && (
@@ -170,8 +164,6 @@ export default function ChatWindow({ currentUserId, onBack }: ChatWindowProps) {
             </p>
           </div>
         </div>
-
-        {/* Delete conversation button */}
         <div className="relative">
           <button 
             onClick={() => setShowDeleteConfirm(true)}
@@ -179,8 +171,6 @@ export default function ChatWindow({ currentUserId, onBack }: ChatWindowProps) {
           >
             <Trash2 className="w-5 h-5 text-gray-400" />
           </button>
-          
-          {/* Delete confirmation popup */}
           {showDeleteConfirm && (
             <div className="absolute right-0 top-full mt-2 bg-gray-800 border border-gray-700 rounded-lg p-4 shadow-lg z-10 min-w-[200px]">
               <p className="text-sm text-white mb-3">Delete this conversation?</p>
@@ -202,8 +192,6 @@ export default function ChatWindow({ currentUserId, onBack }: ChatWindowProps) {
           )}
         </div>
       </div>
-
-      {/* Messages container - Fixed issue #4: Only this area scrolls */}
       <div 
         ref={messagesContainerRef}
         onScroll={handleScroll}
@@ -219,14 +207,11 @@ export default function ChatWindow({ currentUserId, onBack }: ChatWindowProps) {
         ) : (
           Object.entries(messageGroups).map(([dateKey, groupMessages]) => (
             <div key={dateKey}>
-              {/* Date separator */}
               <div className="flex items-center justify-center mb-4">
                 <div className="bg-gray-800 px-3 py-1 rounded-full">
                   <span className="text-xs text-gray-400">{dateKey}</span>
                 </div>
               </div>
-
-              {/* Messages for this date */}
               <div className="space-y-3">
                 {groupMessages.map((message, index) => {
                   const isCurrentUser = message.senderId._id === currentUserId;
@@ -276,7 +261,6 @@ export default function ChatWindow({ currentUserId, onBack }: ChatWindowProps) {
                           >
                             {formatMessageTime(message.createdAt)}
                           </p>
-                          {/* Issue #6 fix: Show read status */}
                           {isCurrentUser && (
                             <span
                               className={`text-xs ml-2 ${
@@ -309,8 +293,6 @@ export default function ChatWindow({ currentUserId, onBack }: ChatWindowProps) {
             </div>
           ))
         )}
-
-        {/* Typing indicator */}
         {isTyping && (
           <div className="flex items-center gap-2">
             <div className="w-8 h-8">
@@ -334,8 +316,6 @@ export default function ChatWindow({ currentUserId, onBack }: ChatWindowProps) {
 
         <div ref={messagesEndRef} />
       </div>
-
-      {/* Message input - Fixed issue #3 & #8: Better textarea and alignment */}
       <div className="p-4 border-t border-gray-700 bg-gray-800 flex-shrink-0">
         <form onSubmit={handleSendMessage} className="flex items-end gap-3">
           <div className="flex-1">

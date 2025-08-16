@@ -1,4 +1,3 @@
-// app/api/messages/start/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbSetup/dbSetup";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
@@ -27,7 +26,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user exists
     const otherUser = await user.findById(userId).select('username name profilePic');
     if (!otherUser) {
       return NextResponse.json(
@@ -36,7 +34,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if conversation already exists
     const existingMessage = await message.findOne({
       $or: [
         {
@@ -50,7 +47,6 @@ export async function POST(request: NextRequest) {
       ],
     }).sort({ createdAt: -1 });
 
-    // Return conversation data
     const conversation = {
       _id: userId,
       otherUser: {

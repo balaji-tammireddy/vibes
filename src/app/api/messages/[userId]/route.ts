@@ -1,4 +1,3 @@
-// app/api/messages/[userId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbSetup/dbSetup";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
@@ -26,7 +25,6 @@ export async function GET(
       );
     }
 
-    // Get messages between current user and other user
     const messages = await message
       .find({
         $or: [
@@ -46,7 +44,6 @@ export async function GET(
       .skip(skip)
       .limit(limit);
 
-    // Mark messages as read where current user is receiver
     await message.updateMany(
       {
         senderId: new mongoose.Types.ObjectId(otherUserId),
@@ -58,7 +55,7 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      messages: messages.reverse(), // Reverse to show oldest first
+      messages: messages.reverse(),
       hasMore: messages.length === limit,
       page,
     });

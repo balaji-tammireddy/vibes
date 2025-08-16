@@ -1,4 +1,3 @@
-// app/api/messages/conversations/route.ts (Updated)
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbSetup/dbSetup";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
@@ -12,7 +11,6 @@ export async function GET(request: NextRequest) {
 
     const userId = await getDataFromToken();
 
-    // Get all conversations where user is either sender or receiver
     const conversations = await message.aggregate([
       {
         $match: {

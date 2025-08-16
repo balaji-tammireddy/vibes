@@ -1,4 +1,3 @@
-// app/api/messages/send/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbSetup/dbSetup";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
@@ -19,7 +18,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify receiver exists
     const receiver = await user.findById(receiverId);
     if (!receiver) {
       return NextResponse.json(
@@ -28,7 +26,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create the message
     const newMessage = new message({
       senderId,
       receiverId,
@@ -37,7 +34,6 @@ export async function POST(request: NextRequest) {
 
     await newMessage.save();
 
-    // Populate sender info for the response
     await newMessage.populate('senderId', 'username name profilePic');
     await newMessage.populate('receiverId', 'username name profilePic');
 

@@ -1,4 +1,3 @@
-// app/(main)/messages/components/MessagesContext.tsx
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
@@ -48,7 +47,6 @@ interface MessagesContextType {
   markAsRead: (userId: string) => Promise<void>;
   deleteConversation: (userId: string) => Promise<void>;
   
-  // Real-time updates
   addNewMessage: (message: Message) => void;
   updateConversation: (conversation: Conversation) => void;
 }
@@ -64,7 +62,6 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
   const [hasMore, setHasMore] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Load conversations
   const loadConversations = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -78,7 +75,6 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Select conversation
   const selectConversation = useCallback((conversation: Conversation) => {
     setCurrentConversation(conversation);
     setMessages([]);
@@ -86,7 +82,6 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
     setHasMore(false);
   }, []);
 
-  // Load messages for a conversation
   const loadMessages = useCallback(async (userId: string, page = 1) => {
     try {
       setIsLoading(page === 1);
@@ -108,7 +103,6 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Send message
   const sendMessage = useCallback(async (receiverId: string, text: string) => {
     if (!text.trim()) return;
 
@@ -121,10 +115,8 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
 
       const newMessage = response.data.message;
       
-      // Add message to current conversation
       setMessages(prev => [...prev, newMessage]);
       
-      // Update conversations list - Fix issue #5: Show last message regardless of sender
       setConversations(prev => {
         const existingIndex = prev.findIndex(conv => conv._id === receiverId);
         const updatedConversation = {
@@ -150,7 +142,6 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
         }
       });
 
-      // Trigger real-time update for receiver (Issue #1 fix)
       await triggerRealTimeUpdate(receiverId, newMessage);
 
     } catch (error: any) {
@@ -161,26 +152,20 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Trigger real-time update for receiver
   const triggerRealTimeUpdate = useCallback(async (receiverId: string, message: Message) => {
     try {
-      // This would typically be done via WebSocket or Server-Sent Events
-      // For now, we'll use a simple API call that the receiver can poll
       await axios.post("/api/messages/notify", {
         receiverId,
         messageId: message._id
       });
     } catch (error) {
-      // Silent fail for notification
       console.warn("Failed to trigger real-time update:", error);
     }
   }, []);
 
-  // Mark messages as read
   const markAsRead = useCallback(async (userId: string) => {
     try {
       await axios.post(`/api/messages/${userId}/read`);
-      // Update local state to reflect read status immediately
       setConversations(prev => 
         prev.map(conv => 
           conv._id === userId 
@@ -189,7 +174,6 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
         )
       );
       
-      // Update messages read status immediately
       setMessages(prev => 
         prev.map(msg => 
           msg.senderId._id === userId 
@@ -198,22 +182,18 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
         )
       );
       
-      // Force refresh conversations to sync with backend
       await loadConversations();
     } catch (error: any) {
       console.error("Failed to mark as read:", error);
     }
   }, [loadConversations]);
 
-  // Delete conversation
   const deleteConversation = useCallback(async (userId: string) => {
     try {
       await axios.delete(`/api/messages/conversations/${userId}`);
       
-      // Remove from local state
       setConversations(prev => prev.filter(conv => conv._id !== userId));
       
-      // Clear current conversation if it was deleted
       if (currentConversation?._id === userId) {
         setCurrentConversation(null);
         setMessages([]);
@@ -226,9 +206,8 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
     }
   }, [currentConversation]);
 
-  // Real-time message addition
+
   const addNewMessage = useCallback((message: Message) => {
-    // Only add if it's for current conversation
     if (currentConversation && 
         (message.senderId._id === currentConversation._id || 
          message.receiverId._id === currentConversation._id)) {
@@ -241,7 +220,6 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
       });
     }
     
-    // Update conversations list - Fix issue #5: Show actual last message
     setConversations(prev => {
       const otherUserId = message.senderId._id === currentConversation?.otherUser._id 
         ? message.senderId._id 
@@ -273,7 +251,6 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
     });
   }, [currentConversation]);
 
-  // Update conversation
   const updateConversation = useCallback((conversation: Conversation) => {
     setConversations(prev => {
       const existingIndex = prev.findIndex(conv => conv._id === conversation._id);
@@ -285,21 +262,15 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
       return [conversation, ...prev];
     });
   }, []);
-
-  // Enhanced polling for new messages and real-time read status updates
   useEffect(() => {
     const pollForUpdates = async () => {
       try {
-        // Poll for new conversations
         const response = await axios.get("/api/messages/conversations");
         const newConversations = response.data.conversations || [];
-        
-        // Check for new messages in current conversation
+      
         if (currentConversation) {
           const messageResponse = await axios.get(`/api/messages/${currentConversation._id}?page=1&limit=10`);
           const latestMessages = messageResponse.data.messages || [];
-          
-          // Update messages with latest read status and new messages
           setMessages(prev => {
             const updatedMessages = [...prev];
             let hasChanges = false;
@@ -307,13 +278,11 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
             latestMessages.forEach((newMsg: Message) => {
               const existingIndex = updatedMessages.findIndex(msg => msg._id === newMsg._id);
               if (existingIndex >= 0) {
-                // Update existing message (for read status)
                 if (updatedMessages[existingIndex].read !== newMsg.read) {
                   updatedMessages[existingIndex] = newMsg;
                   hasChanges = true;
                 }
               } else {
-                // Add new message
                 updatedMessages.push(newMsg);
                 hasChanges = true;
               }
@@ -324,8 +293,6 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
             ) : prev;
           });
         }
-        
-        // Update conversations if there are changes
         setConversations(prev => {
           if (JSON.stringify(prev) !== JSON.stringify(newConversations)) {
             return newConversations;
@@ -334,11 +301,10 @@ export function MessagesProvider({ children }: { children: React.ReactNode }) {
         });
         
       } catch (error) {
-        // Silent fail for polling
       }
     };
 
-    const interval = setInterval(pollForUpdates, 2000); // Poll every 2 seconds
+    const interval = setInterval(pollForUpdates, 2000); 
     return () => clearInterval(interval);
   }, [currentConversation]);
 
