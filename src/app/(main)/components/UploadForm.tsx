@@ -41,7 +41,6 @@ export default function UploadForm() {
     setLoading(true);
 
     try {
-      // For new posts, always use FormData
       const formData = new FormData();
       formData.append("image", imageFile);
       formData.append("caption", caption || "");
@@ -60,7 +59,6 @@ export default function UploadForm() {
 
   return (
     <div className="w-full max-w-lg mx-auto">
-      {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-2xl font-semibold text-white mb-2">Create New Post</h1>
         <p className="text-gray-400">Share a moment with your followers</p>
@@ -70,7 +68,6 @@ export default function UploadForm() {
         onSubmit={handleSubmit}
         className="bg-gray-900 border border-gray-700 rounded-lg shadow-lg p-6 space-y-6"
       >
-        {/* Image Upload Section */}
         <div className="space-y-4">
           <label className="block text-sm font-medium text-white">Image</label>
           
@@ -114,8 +111,6 @@ export default function UploadForm() {
             </div>
           )}
         </div>
-
-        {/* Caption Section */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-white">Caption</label>
           <Textarea
@@ -130,8 +125,6 @@ export default function UploadForm() {
             <span>{caption.length}/2200</span>
           </div>
         </div>
-
-        {/* Submit Button */}
         <Button
           type="submit"
           disabled={loading || !imageFile}
