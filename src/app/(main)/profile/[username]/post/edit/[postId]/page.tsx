@@ -2,10 +2,10 @@ import Navigation from "@/app/(main)/components/Navigation";
 import EditForm from "@/app/(main)/profile/[username]/EditForm";
 
 type EditPostPageProps = {
-  params: {
+  params: Promise<{
     username: string;
     postId: string;
-  };
+  }>;
 };
 
 export default async function EditPostPage({ params }: EditPostPageProps) {

@@ -6,7 +6,7 @@ import { getDataFromToken } from "@/helpers/getDataFromToken";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, {params} : { params: { username: string } }) {
+export async function GET(req: Request, {params} : { params: Promise<{ username: string }> }) {
   try {
     await connect();
 

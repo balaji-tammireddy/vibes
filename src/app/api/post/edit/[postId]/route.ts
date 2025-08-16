@@ -4,7 +4,7 @@ import { getDataFromToken } from "@/helpers/getDataFromToken";
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 
-export async function PUT(req: NextRequest, {params}: { params: { postId: string } }) {
+export async function PUT(req: NextRequest, {params}: { params: Promise<{ postId: string }> }) {
   try {
     await connect();
     const userId = await getDataFromToken();

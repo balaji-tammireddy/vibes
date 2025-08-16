@@ -2,9 +2,9 @@ import Navigation from "@/app/(main)/components/Navigation";
 import EditProfileForm from "@/app/(main)/profile/[username]/EditProfileForm";
 
 type EditProfilePageProps = {
-  params: {
+  params: Promise<{
     username: string;
-  };
+  }>;
 };
 
 export default async function EditProfilePage({ params }: EditProfilePageProps) {

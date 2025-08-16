@@ -4,11 +4,11 @@ import Comment from "@/models/comment";
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function DELETE(req: NextRequest, context : { params: { postId: string } }) {
+export async function DELETE(req: NextRequest, { params } : { params: Promise<{ postId: string }> }) {
   try {
     await connect();
     const userId = await getDataFromToken();
-    const { postId } = context.params;
+    const { postId } = await params;
 
     const post = await Post.findById(postId);
     if (!post) return NextResponse.json({ message: "Post not found" }, { status: 404 });
@@ -25,7 +25,7 @@ export async function DELETE(req: NextRequest, context : { params: { postId: str
   }
 }
 
-export async function GET(req: NextRequest, { params }: { params: { postId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
   try {
     await connect();
     const { postId } = await params;
