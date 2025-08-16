@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
+import { Home, Search } from "lucide-react";
 import Navigation from "../components/Navigation";
 import PostCard from "../components/PostCard";
 import { toast } from "sonner";
@@ -28,11 +30,10 @@ export default function HomePage() {
   }, []);
 
   if (loading) {
-      return (
-        <div className="flex flex-col md:flex-row min-h-screen bg-black text-white">
-          <div className="w-full md:w-64 border-b border-gray-800 md:border-b-0">
-            <Navigation />
-          </div>
+    return (
+      <>
+        <Navigation />
+        <div className="flex flex-col md:flex-row h-screen bg-black text-white overflow-hidden md:pl-16">
           <div className="flex-1 flex justify-center items-center">
             <div className="flex items-center gap-2 text-gray-400">
               <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -40,21 +41,37 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      );
-    }
+      </>
+    );
+  }
 
   return (
-    <div className="flex">
+    <>
       <Navigation />
-      <main className="flex-1 flex flex-col items-center mt-4 md:mt-6 pb-20 md:pb-0">
-        {loading ? (
-          <p className="text-white text-sm">Loading...</p>
-        ) : posts.length === 0 ? (
-          <p className="text-white text-sm">No posts to show</p>
-        ) : (
-          posts.map((post) => <PostCard key={post._id} post={post} />)
-        )}
-      </main>
-    </div>
+      <div className="flex flex-col md:flex-row min-h-screen bg-black text-white md:pl-16">
+        <main className="flex-1 flex flex-col items-center pt-4 md:pt-6 pb-20 md:pb-6 px-4">
+          {posts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-gray-400 p-8">
+              <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Home className="w-8 h-8" />
+              </div>
+              <h3 className="text-lg font-medium mb-2 text-white">No posts yet</h3>
+              <p className="text-sm text-center mb-4">
+                Follow some users to see their posts in your feed
+              </p>
+              <Link 
+                href="/search"
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+              >
+                <Search className="w-4 h-4" />
+                Discover People
+              </Link>
+            </div>
+          ) : (
+            posts.map((post) => <PostCard key={post._id} post={post} />)
+          )}
+        </main>
+      </div>
+    </>
   );
 }
