@@ -1,8 +1,9 @@
+// app/(main)/search/components/UserCard.tsx
 "use client";
 
 import { useState } from "react";
 import Image from "next/image";
-import { ChevronDown, ChevronUp, UserPlus, UserMinus } from "lucide-react";
+import { ChevronDown, ChevronUp, UserPlus, UserMinus, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ interface UserCardProps {
 export default function UserCard({ user, currentUserId }: UserCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isFollowLoading, setIsFollowLoading] = useState(false);
+  const [isMessageLoading, setIsMessageLoading] = useState(false);
   const { updateUserFollowStatus } = useSearch();
   const router = useRouter();
 
@@ -64,6 +66,35 @@ export default function UserCard({ user, currentUserId }: UserCardProps) {
       toast.error(error.response?.data?.error || "Failed to update follow status");
     } finally {
       setIsFollowLoading(false);
+    }
+  };
+
+  const handleMessage = async () => {
+    if (!currentUserId) {
+      toast.error("Please log in to send messages");
+      return;
+    }
+
+    if (currentUserId === user._id) {
+      toast.error("You cannot message yourself");
+      return;
+    }
+
+    try {
+      setIsMessageLoading(true);
+      
+      // Start conversation
+      await axios.post("/api/messages/start", { userId: user._id });
+      
+      // Navigate to messages with the user
+      router.push(`/messages?user=${user._id}`);
+      
+      toast.success(`Started conversation with ${user.username}`);
+    } catch (error: any) {
+      console.error("Start conversation failed:", error);
+      toast.error(error.response?.data?.error || "Failed to start conversation");
+    } finally {
+      setIsMessageLoading(false);
     }
   };
 
@@ -103,35 +134,56 @@ export default function UserCard({ user, currentUserId }: UserCardProps) {
 
           <div className="flex items-center gap-2 flex-shrink-0">
             {currentUserId && currentUserId !== user._id && (
-              <Button
-                onClick={handleFollowToggle}
-                disabled={isFollowLoading}
-                size="sm"
-                variant={user.isFollowing ? "outline" : "default"}
-                className={`cursor-pointer min-w-[80px] ${
-                  user.isFollowing 
-                    ? "text-red-400 border-red-400 hover:bg-red-500 hover:text-white" 
-                    : "bg-blue-600 hover:bg-blue-700 text-white"
-                }`}
-              >
-                {isFollowLoading ? (
-                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    {user.isFollowing ? (
-                      <>
-                        <UserMinus className="w-3 h-3 mr-1" />
-                        Unfollow
-                      </>
-                    ) : (
-                      <>
-                        <UserPlus className="w-3 h-3 mr-1" />
-                        Follow
-                      </>
-                    )}
-                  </>
-                )}
-              </Button>
+              <>
+                {/* Message Button */}
+                <Button
+                  onClick={handleMessage}
+                  disabled={isMessageLoading}
+                  size="sm"
+                  variant="outline"
+                  className="cursor-pointer min-w-[80px] text-blue-400 border-blue-400 hover:bg-blue-500 hover:text-white"
+                >
+                  {isMessageLoading ? (
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <MessageCircle className="w-3 h-3 mr-1" />
+                      Message
+                    </>
+                  )}
+                </Button>
+
+                {/* Follow Button */}
+                <Button
+                  onClick={handleFollowToggle}
+                  disabled={isFollowLoading}
+                  size="sm"
+                  variant={user.isFollowing ? "outline" : "default"}
+                  className={`cursor-pointer min-w-[80px] ${
+                    user.isFollowing 
+                      ? "text-red-400 border-red-400 hover:bg-red-500 hover:text-white" 
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
+                >
+                  {isFollowLoading ? (
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      {user.isFollowing ? (
+                        <>
+                          <UserMinus className="w-3 h-3 mr-1" />
+                          Unfollow
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="w-3 h-3 mr-1" />
+                          Follow
+                        </>
+                      )}
+                    </>
+                  )}
+                </Button>
+              </>
             )}
             
             <Button
