@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Mail, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -32,23 +34,58 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-6 py-10 bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364] text-white">
-      <h1 className="text-3xl font-bold mb-6">Forgot Password</h1>
+    <main className="flex items-center justify-center min-h-screen bg-black text-white px-4">
+      <div className="w-full max-w-md">
+        <div className="bg-gray-900 border border-gray-700 rounded-lg p-8 space-y-6">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 mx-auto bg-orange-600 rounded-full flex items-center justify-center mb-4">
+              <Mail className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-2">Forgot Password</h1>
+            <p className="text-gray-400">Enter your email to receive a reset code</p>
+          </div>
 
-      <div className="w-full max-w-sm space-y-4">
-        <div>
-          <Label className="p-2">Enter your email</Label>
-          <Input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          <div className="space-y-4">
+            <div>
+              <Label className="text-gray-300 py-2 font-medium">
+                Email Address
+              </Label>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-orange-500"
+                placeholder="Enter your email"
+              />
+            </div>
+          </div>
+
+          <Button 
+            onClick={handleSubmit} 
+            disabled={loading} 
+            className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-2.5 transition-colors duration-200"
+          >
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                Sending...
+              </div>
+            ) : (
+              "Send OTP"
+            )}
+          </Button>
+
+          <div className="text-center">
+            <Link 
+              href="/login"
+              className="inline-flex items-center text-sm text-gray-400 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back to Login
+            </Link>
+          </div>
         </div>
-
-        <Button onClick={handleSubmit} disabled={loading} className="w-full cursor-pointer">
-          {loading ? "Sending..." : "Send OTP"}
-        </Button>
       </div>
-    </div>
+    </main>
   );
 }
